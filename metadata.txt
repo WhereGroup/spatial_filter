@@ -1,0 +1,25 @@
+[general]
+name=Map Filter
+qgisMinimumVersion=3.0
+description=This plugin applies global filters.
+version=0.1
+author=HVBG / Wheregroup GmbH
+email=welche@mail.hier
+
+about=Create and manage spatial filters that are applied to all vector layers in the current project.
+
+tracker=http://bugs
+repository=http://repo
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+tags=python, filter, vector
+
+homepage=http://homepage
+category=Plugins
+icon=icons/icon.png
+experimental=False
+deprecated=False
+server=False
+

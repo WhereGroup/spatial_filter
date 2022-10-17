@@ -1,0 +1,12 @@
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+
+### PLUGIN
+__pycache__
+*.gpkg-shm
+*.gpkg-wal
+zip_build/
