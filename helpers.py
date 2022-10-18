@@ -18,3 +18,7 @@ def readValue(key: str, defaultValue: Any = None) -> Any:
     value = settings.value(key, defaultValue)
     settings.endGroup()
     return value
+
+
+def refreshLayerTree() -> None:
+    pass

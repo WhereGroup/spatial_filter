@@ -49,4 +49,5 @@ class MapFilter:
         self.iface.mainWindow().addToolBar(self.toolbar)
 
     def unload(self):
+        self.toolbar.onToggled(False)
         self.toolbar.deleteLater()
