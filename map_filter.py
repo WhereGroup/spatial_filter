@@ -25,6 +25,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 
 import os.path
 
+from .controller import Controller
 from .widgets import FilterToolbar
 
 
@@ -45,9 +46,9 @@ class MapFilter:
         return QCoreApplication.translate('MapFilter', message)
 
     def initGui(self):
-        self.toolbar = FilterToolbar(self.iface.mainWindow())
+        self.toolbar = FilterToolbar(Controller(), self.iface.mainWindow())
         self.iface.mainWindow().addToolBar(self.toolbar)
 
     def unload(self):
-        self.toolbar.onToggled(False)
+        self.toolbar.controller.onToggled(False)
         self.toolbar.deleteLater()

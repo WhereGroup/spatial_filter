@@ -1,93 +1,38 @@
 import os
 
-from typing import Optional, Iterable
+from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import QSize, Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
     QAction,
-    QHBoxLayout,
     QPushButton,
     QLineEdit,
     QDialog,
     QVBoxLayout,
     QSizePolicy,
-    QDialogButtonBox, QListWidget, QMenu, QActionGroup
+    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame
 )
 from qgis.gui import QgsExtentWidget
-from qgis.core import QgsApplication, QgsGeometry, QgsMapLayer, QgsMapLayerType, QgsProject, QgsVectorLayer, QgsWkbTypes
+from qgis.core import QgsApplication, QgsGeometry, QgsMapLayerType, QgsProject, QgsWkbTypes
 from qgis.utils import iface
 
+from .controller import Controller
 from .models import FilterModel, DataRole
-from .helpers import refreshLayerTree
-from .settings import FILTER_COMMENT, GEOMETRY_COLUMN
-from .filters import Predicate, FilterDefinition, saveFilterDefinition, deleteFilterDefinition
-
-
-class FilterWidget(QWidget):
-    currentFilter: Optional[FilterDefinition]
-    lineEditFilterName: QLineEdit
-
-    filterChanged = pyqtSignal()
-
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.setObjectName("mFilterWidget")
-        self.currentFilter = None
-        self.setupUi()
-        self.setupConnections()
-
-    def setupUi(self):
-        self.setMaximumWidth(300)
-        self.horizontalLayout = QHBoxLayout(self)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setSpacing(0)
-        self.lineEditFilterName = QLineEdit(self)
-        self.horizontalLayout.addWidget(self.lineEditFilterName)
-        self.toggleVisibilityButton = QPushButton(self)
-        visibilityIcon = QIcon()
-        pixmapOn = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(QSize(21, 21))
-        pixmapOff = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(QSize(21, 21))
-        visibilityIcon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
-        visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
-        self.toggleVisibilityButton.setIcon(visibilityIcon)
-        self.toggleVisibilityButton.setIconSize(QSize(21, 21))
-        self.toggleVisibilityButton.setCheckable(True)
-        self.horizontalLayout.addWidget(self.toggleVisibilityButton)
-        self.horizontalLayout.setStretch(0, 1)
-
-    def setupConnections(self):
-        self.toggleVisibilityButton.toggled.connect(self.onFilterVisibilityToggled)
-        self.lineEditFilterName.textChanged.connect(self.onTextChanged)
-
-    def setFilter(self, filterDef: FilterDefinition):
-        self.currentFilter = filterDef
-        if filterDef is None:
-            self.lineEditFilterName.setText("Kein aktiver Filter")
-            return
-        self.lineEditFilterName.setText(filterDef.name)
-        self.filterChanged.emit()
-
-    def onFilterVisibilityToggled(self, checked: bool):
-        print(checked)
-
-    def onTextChanged(self, text):
-        self.currentFilter.name = text
+from .filters import Predicate, saveFilterDefinition, deleteFilterDefinition
 
 
 class ExtentDialog(QDialog):
-    def __init__(self, filterWidget: FilterWidget, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, controller: Controller, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.filterWidget = filterWidget
+        self.controller = controller
         self.setObjectName("mExtentDialog")
         self.setWindowTitle("Set rectangular filter")
         self.setupUi()
         self.extentWidget.setOriginalExtent(iface.mapCanvas().extent(), QgsProject.instance().crs())
-        #self.extentWidget.setCurrentExtent(iface.mapCanvas().extent(), QgsProject.instance().crs())
-        #self.extentWidget.setOutputCrs(QgsProject.instance().crs())
         self.extentWidget.setMapCanvas(iface.mapCanvas())
 
     def setupUi(self):
@@ -117,10 +62,9 @@ class ExtentDialog(QDialog):
 
     def accept(self) -> None:
         if self.extentWidget.isValid():
-            filter = self.filterWidget.currentFilter
-            filter.wkt = QgsGeometry.fromRect(self.getExtent()).asWkt()
-            filter.srsid = self.getCrs().srsid()
-            self.filterWidget.setFilter(filter)
+            self.controller.currentFilter.wkt = QgsGeometry.fromRect(self.getExtent()).asWkt()
+            self.controller.currentFilter.srsid = self.getCrs().srsid()
+            self.controller.refreshFilter()
         super().accept()
 
 
@@ -135,9 +79,9 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
     buttonDelete: QPushButton
     buttonClose: QPushButton
 
-    def __init__(self, filterWidget: FilterWidget, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, controller, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        self.filterWidget = filterWidget
+        self.controller = controller
         self.setupUi(self)
         self.setupConnections()
         self.setModel()
@@ -160,7 +104,8 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
     def onApplyClicked(self):
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
-        self.filterWidget.setFilter(filterDefinition)
+        self.controller.currentFilter = filterDefinition
+        self.controller.refreshFilter()
 
     def onDeleteClicked(self):
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
@@ -169,28 +114,14 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.setModel()
 
 
-class ToggleFilterAction(QAction):
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        super().__init__(parent=parent)
-        self.setObjectName('mToggleFilterAction')
-        self.setToolTip('Toggle filter on/off')
-        icon = QIcon()
-        pixmapOn = QPixmap(os.path.join(os.path.dirname(__file__), "icons", "filter_on.png"))
-        pixmapOff = QPixmap(os.path.join(os.path.dirname(__file__), "icons", "filter_off.png"))
-        icon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
-        icon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
-        self.setIcon(icon)
-        self.setCheckable(True)
-
-
-class PredicateSelectionAction(QPushButton):
+class PredicateAction(QPushButton):
     predicateChanged = pyqtSignal(Predicate)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.setObjectName('mPredicateSelectAction')
-        self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
         self.setToolTip('Chose geometric predicate')
+        self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
         self.menu = QMenu(parent=parent)
         self.predicateActionGroup = QActionGroup(self)
         self.predicateActionGroup.setExclusive(True)
@@ -215,23 +146,44 @@ class PredicateSelectionAction(QPushButton):
 
 
 class FilterToolbar(QToolBar):
-    filterWidget: FilterWidget
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, controller: Controller, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
+        self.controller = controller
         self.setWindowTitle('Filter Toolbar')
         self.setObjectName('mFilterToolbar')
         self.setupUi()
         self.setupConnections()
-        self.onToggled(False)
+        self.controller.onToggled(False)
 
     def setupUi(self):
-        self.layout().setSpacing(10)
-        self.toggleFilterAction = ToggleFilterAction(self)
+        self.layout().setSpacing(5)
+        self.toggleFilterAction = QAction(self)
+        self.toggleFilterAction.setToolTip('Toggle filter on/off')
+        icon = QIcon()
+        pixmapOn = QPixmap(os.path.join(os.path.dirname(__file__), "icons", "filter_on.png"))
+        pixmapOff = QPixmap(os.path.join(os.path.dirname(__file__), "icons", "filter_off.png"))
+        icon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
+        icon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
+        self.toggleFilterAction.setIcon(icon)
+        self.toggleFilterAction.setCheckable(True)
         self.addAction(self.toggleFilterAction)
 
-        self.filterWidget = FilterWidget(self)
-        self.addWidget(self.filterWidget)
+        self.labelFilterName = QLabel(self)
+        self.labelFilterName.setFrameShape(QFrame.Panel)
+        self.labelFilterName.setFrameShadow(QFrame.Sunken)
+        self.labelFilterName.setMinimumWidth(150)
+        self.addWidget(self.labelFilterName)
+
+        self.toggleVisibilityAction = QAction(self)
+        visibilityIcon = QIcon()
+        pixmapOn = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
+        pixmapOff = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
+        visibilityIcon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
+        visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
+        self.toggleVisibilityAction.setIcon(visibilityIcon)
+        self.toggleVisibilityAction.setCheckable(True)
+        self.addAction(self.toggleVisibilityAction)
 
         self.filterFromExtentAction = QAction(self)
         self.filterFromExtentAction.setIcon(QgsApplication.getThemeIcon('/mActionAddBasicRectangle.svg'))
@@ -243,8 +195,8 @@ class FilterToolbar(QToolBar):
         self.filterFromSelectionAction.setToolTip('Set filter geometry from selection')
         self.addAction(self.filterFromSelectionAction)
 
-        self.predicateSelectionAction = PredicateSelectionAction(self)
-        self.addWidget(self.predicateSelectionAction)
+        self.predicateAction = PredicateAction(self)
+        self.addWidget(self.predicateAction)
 
         self.saveCurrentFilterAction = QAction(self)
         self.saveCurrentFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
@@ -257,54 +209,20 @@ class FilterToolbar(QToolBar):
         self.addAction(self.manageFiltersAction)
 
     def setupConnections(self):
-        self.toggleFilterAction.toggled.connect(self.onToggled)
+        self.toggleFilterAction.toggled.connect(self.controller.onToggled)
         self.filterFromExtentAction.triggered.connect(self.setFilterFromExtent)
-        self.filterWidget.filterChanged.connect(self.updateFilter)
         self.manageFiltersAction.triggered.connect(self.manageFilters)
         self.saveCurrentFilterAction.triggered.connect(self.saveCurrentFilter)
-        self.predicateSelectionAction.predicateChanged.connect(self.setFilterPredicate)
+        self.predicateAction.predicateChanged.connect(self.setFilterPredicate)
         self.filterFromSelectionAction.triggered.connect(self.setFilterFromSelection)
-
-    def updateFilter(self):
-        self.onToggled(self.toggleFilterAction.isChecked())
-
-    def onToggled(self, checked: bool) -> None:
-        if checked and not self.filterWidget.currentFilter:
-            return
-        self.udpateConnectionProjectLayersAdded(checked)
-        self.updateLayerFilters(checked)
-
-    def udpateConnectionProjectLayersAdded(self, checked):
-        self.disconnectProjectLayersAdded()
-        if checked:
-            QgsProject.instance().layersAdded.connect(self.onLayersAdded)
-
-    def disconnectProjectLayersAdded(self):
-        try:
-            QgsProject.instance().layersAdded.disconnect()
-        except TypeError:
-            pass
-
-    def onLayersAdded(self, layers: Iterable[QgsMapLayer]):
-        for layer in getPostgisLayers(layers):
-            filterCondition = self.filterWidget.currentFilter.filterString(GEOMETRY_COLUMN)
-            filterString = f'{FILTER_COMMENT}{filterCondition}'
-            layer.setSubsetString(filterString)
-
-    def updateLayerFilters(self, checked: bool):
-        for layer in getPostgisLayers(QgsProject.instance().mapLayers().values()):
-            if not checked:
-                removePluginFilter(layer)
-            else:
-                addPluginFilter(layer, self.filterWidget.currentFilter)
-        refreshLayerTree()
+        self.controller.nameChanged.connect(self.labelFilterName.setText)
 
     def setFilterPredicate(self, predicate: Predicate):
-        self.filterWidget.currentFilter.predicate = predicate.value
-        self.updateFilter()
+        self.controller.currentFilter.predicate = predicate.value
+        self.controller.refreshFilter()
 
     def setFilterFromExtent(self):
-        dlg = ExtentDialog(self.filterWidget, parent=self)
+        dlg = ExtentDialog(self.controller, parent=self)
         dlg.show()
 
     def setFilterFromSelection(self):
@@ -323,52 +241,17 @@ class FilterToolbar(QToolBar):
         for feature in layer.selectedFeatures():
             geom = geom.combine(feature.geometry())
 
-        self.filterWidget.currentFilter.srsid = crs.srsid()
-        self.filterWidget.currentFilter.wkt = geom.asWkt()
-        self.updateFilter()
+        self.controller.currentFilter.srsid = crs.srsid()
+        self.controller.currentFilter.wkt = geom.asWkt()
+        self.controller.refreshFilter()
 
     def manageFilters(self):
-        dlg = ManageFiltersDialog(self.filterWidget, parent=self)
+        dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
     def saveCurrentFilter(self):
-        saveFilterDefinition(self.filterWidget.currentFilter)
+        saveFilterDefinition(self.controller.currentFilter)
 
 
-def getPostgisLayers(layers: Iterable[QgsMapLayer]):
-    for layer in layers:
-        if layer.type() != QgsMapLayerType.VectorLayer:
-            continue
-        if layer.providerType() != 'postgres':
-            continue
-        yield layer
 
 
-def removePluginFilter(layer: QgsVectorLayer):
-    currentFilter = layer.subsetString()
-    if FILTER_COMMENT not in currentFilter:
-        return
-    index = currentFilter.find(FILTER_COMMENT)
-    newFilter = currentFilter[:index]
-    layer.setSubsetString(newFilter)
-
-
-def addPluginFilter(layer: QgsVectorLayer, filterDef: FilterDefinition):
-    currentFilter = layer.subsetString()
-    if FILTER_COMMENT in currentFilter:
-        removePluginFilter(layer)
-    currentFilter = layer.subsetString()
-    connect = " AND " if currentFilter else ""
-    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(GEOMETRY_COLUMN)}'
-    layer.setSubsetString(newFilter)
-
-
-def getTestFilterDefinition():
-    from .filters import Predicate, FilterDefinition
-    name = 'museumsinsel'
-    srsid = 3452
-    predicate = Predicate.INTERSECTS.value
-    wkt = 'Polygon ((13.38780495720708963 52.50770539474106613, 13.41583642354597039 52.50770539474106613, ' \
-          '13.41583642354597039 52.52548910505585411, 13.38780495720708963 52.52548910505585411, ' \
-          '13.38780495720708963 52.50770539474106613))'
-    return FilterDefinition(name, wkt, srsid, predicate)

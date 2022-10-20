@@ -54,6 +54,10 @@ class FilterDefinition:
     def fromStorageString(value: str) -> 'FilterDefinition':
         return FilterDefinition(*value.split(SPLIT_CHAR))
 
+    @property
+    def isValid(self) -> bool:
+        return all([self.wkt, self.srsid, self.predicate])
+
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
     value = readValue(filterDef.name)
