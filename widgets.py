@@ -1,6 +1,6 @@
 import os
 
-from typing import Optional, List, Iterable, Union
+from typing import Optional, Iterable
 
 from PyQt5 import uic
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
@@ -15,10 +15,10 @@ from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QSizePolicy,
-    QDialogButtonBox, QListWidget
+    QDialogButtonBox, QListWidget, QMenu, QActionGroup
 )
 from qgis.gui import QgsExtentWidget
-from qgis.core import QgsApplication, QgsGeometry, QgsMapLayer, QgsMapLayerType, QgsProject, QgsVectorLayer
+from qgis.core import QgsApplication, QgsGeometry, QgsMapLayer, QgsMapLayerType, QgsProject, QgsVectorLayer, QgsWkbTypes
 from qgis.utils import iface
 
 from .models import FilterModel, DataRole
@@ -36,6 +36,7 @@ class FilterWidget(QWidget):
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.setObjectName("mFilterWidget")
+        self.currentFilter = None
         self.setupUi()
         self.setupConnections()
 
@@ -182,21 +183,35 @@ class ToggleFilterAction(QAction):
         self.setCheckable(True)
 
 
-class TestAction(QAction):
+class PredicateSelectionAction(QPushButton):
+    predicateChanged = pyqtSignal(Predicate)
+
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
-        icon = QgsApplication.getThemeIcon("/mActionToggleEditing.svg")
-        self.setIcon(icon)
-        self.triggered.connect(self.testStuff)
+        self.setObjectName('mPredicateSelectAction')
+        self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
+        self.setToolTip('Chose geometric predicate')
+        self.menu = QMenu(parent=parent)
+        self.predicateActionGroup = QActionGroup(self)
+        self.predicateActionGroup.setExclusive(True)
+        for predicate in Predicate:
+            action = QAction(self.menu)
+            action.setCheckable(True)
+            action.setObjectName(f'mAction{predicate.name}')
+            action.setText(predicate.name)
+            action.predicate = predicate
+            action.triggered.connect(self.onPredicateChanged)
+            self.predicateActionGroup.addAction(action)
+        self.menu.addActions(self.predicateActionGroup.actions())
+        self.setMenu(self.menu)
 
-    def testStuff(self):
-        wkt = 'Polygon ((790119.38837672967929393 6574913.99197626393288374, 790457.12272053339984268 ' \
-               '6574913.99197626393288374, 790457.12272053339984268 6575038.15901442710310221, ' \
-               '790119.38837672967929393 6575038.15901442710310221, 790119.38837672967929393 6574913.99197626393288374))'
-        filter = FilterDefinition('aaasortiermich!', wkt, 2105, Predicate.DISJOINT.value)
-        storageString = filter.storageString
-        newFilter = FilterDefinition.fromStorageString(storageString)
-        saveFilterDefinition(newFilter)
+    def onPredicateChanged(self):
+        self.predicateChanged.emit(self.getPredicate())
+
+    def getPredicate(self) -> Predicate:
+        currentAction = self.predicateActionGroup.checkedAction()
+        if currentAction:
+            return currentAction.predicate
 
 
 class FilterToolbar(QToolBar):
@@ -209,8 +224,6 @@ class FilterToolbar(QToolBar):
         self.setupUi()
         self.setupConnections()
         self.onToggled(False)
-
-        self.filterWidget.setFilter(getTestFilterDefinition())
 
     def setupUi(self):
         self.layout().setSpacing(10)
@@ -225,6 +238,14 @@ class FilterToolbar(QToolBar):
         self.filterFromExtentAction.setToolTip('Set rectangular filter geometry')
         self.addAction(self.filterFromExtentAction)
 
+        self.filterFromSelectionAction = QAction(self)
+        self.filterFromSelectionAction.setIcon(QgsApplication.getThemeIcon('/mActionAddPolygon.svg'))
+        self.filterFromSelectionAction.setToolTip('Set filter geometry from selection')
+        self.addAction(self.filterFromSelectionAction)
+
+        self.predicateSelectionAction = PredicateSelectionAction(self)
+        self.addWidget(self.predicateSelectionAction)
+
         self.saveCurrentFilterAction = QAction(self)
         self.saveCurrentFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
         self.saveCurrentFilterAction.setToolTip('Save current filter')
@@ -235,19 +256,21 @@ class FilterToolbar(QToolBar):
         self.manageFiltersAction.setToolTip('Manage filters')
         self.addAction(self.manageFiltersAction)
 
-        self.addAction(TestAction(self))
-
     def setupConnections(self):
         self.toggleFilterAction.toggled.connect(self.onToggled)
         self.filterFromExtentAction.triggered.connect(self.setFilterFromExtent)
         self.filterWidget.filterChanged.connect(self.updateFilter)
         self.manageFiltersAction.triggered.connect(self.manageFilters)
         self.saveCurrentFilterAction.triggered.connect(self.saveCurrentFilter)
+        self.predicateSelectionAction.predicateChanged.connect(self.setFilterPredicate)
+        self.filterFromSelectionAction.triggered.connect(self.setFilterFromSelection)
 
     def updateFilter(self):
         self.onToggled(self.toggleFilterAction.isChecked())
 
     def onToggled(self, checked: bool) -> None:
+        if checked and not self.filterWidget.currentFilter:
+            return
         self.udpateConnectionProjectLayersAdded(checked)
         self.updateLayerFilters(checked)
 
@@ -276,9 +299,33 @@ class FilterToolbar(QToolBar):
                 addPluginFilter(layer, self.filterWidget.currentFilter)
         refreshLayerTree()
 
+    def setFilterPredicate(self, predicate: Predicate):
+        self.filterWidget.currentFilter.predicate = predicate.value
+        self.updateFilter()
+
     def setFilterFromExtent(self):
         dlg = ExtentDialog(self.filterWidget, parent=self)
         dlg.show()
+
+    def setFilterFromSelection(self):
+        layer = iface.activeLayer()
+        if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
+            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            return
+        if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            return
+        if not layer.selectedFeatureCount():
+            iface.messageBar().pushInfo('', 'Keine Features gewählt')
+            return
+        crs = iface.activeLayer().crs()
+        geom = QgsGeometry.fromWkt('GEOMETRYCOLLECTION()')
+        for feature in layer.selectedFeatures():
+            geom = geom.combine(feature.geometry())
+
+        self.filterWidget.currentFilter.srsid = crs.srsid()
+        self.filterWidget.currentFilter.wkt = geom.asWkt()
+        self.updateFilter()
 
     def manageFilters(self):
         dlg = ManageFiltersDialog(self.filterWidget, parent=self)
@@ -325,5 +372,3 @@ def getTestFilterDefinition():
           '13.41583642354597039 52.52548910505585411, 13.38780495720708963 52.52548910505585411, ' \
           '13.38780495720708963 52.50770539474106613))'
     return FilterDefinition(name, wkt, srsid, predicate)
-
-
