@@ -1,4 +1,5 @@
 import os
+from dataclasses import replace
 
 from typing import Optional
 
@@ -14,7 +15,7 @@ from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QSizePolicy,
-    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame
+    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
 )
 from qgis.gui import QgsExtentWidget
 from qgis.core import QgsApplication, QgsGeometry, QgsMapLayerType, QgsProject, QgsWkbTypes
@@ -83,10 +84,13 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         super().__init__(parent=parent)
         self.controller = controller
         self.setupUi(self)
+        self.lineEditActiveFilter.setText(self.controller.currentFilter.name)
+        self.lineEditActiveFilter.setReadOnly(True)
         self.setupConnections()
         self.setModel()
 
     def setupConnections(self):
+        self.buttonName.clicked.connect(self.onNameClicked)
         self.buttonApply.clicked.connect(self.onApplyClicked)
         self.buttonDelete.clicked.connect(self.onDeleteClicked)
 
@@ -104,7 +108,9 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
     def onApplyClicked(self):
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
-        self.controller.currentFilter = filterDefinition
+        filterDefinitionCopy = replace(filterDefinition)
+        self.lineEditActiveFilter.setText(filterDefinitionCopy.name)
+        self.controller.currentFilter = filterDefinitionCopy
         self.controller.refreshFilter()
 
     def onDeleteClicked(self):
@@ -112,6 +118,15 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
         deleteFilterDefinition(filterDefinition)
         self.setModel()
+
+    def onNameClicked(self):
+        currentText = self.lineEditActiveFilter.text()
+        text, ok = QInputDialog.getText(self, 'Change Name', 'New Name:', echo=QLineEdit.Normal, text=currentText)
+        if not ok:
+            return
+        self.lineEditActiveFilter.setText(text)
+        self.controller.currentFilter.name = text
+        self.controller.refreshFilter()
 
 
 class PredicateAction(QPushButton):
