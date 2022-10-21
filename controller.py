@@ -1,7 +1,8 @@
 from typing import Iterable, Optional
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from qgis.core import QgsProject, QgsMapLayer
+from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
+from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree
@@ -60,3 +61,23 @@ class Controller(QObject):
             return
         self.nameChanged.emit(self.currentFilter.name)
         self.updateProjectLayers(self.toolbarIsActive)
+
+    def setFilterFromSelection(self):
+        layer = iface.activeLayer()
+        if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
+            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            return
+        if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            return
+        if not layer.selectedFeatureCount():
+            iface.messageBar().pushInfo('', 'Keine Features gewählt')
+            return
+        crs = iface.activeLayer().crs()
+        geom = QgsGeometry.fromWkt('GEOMETRYCOLLECTION()')
+        for feature in layer.selectedFeatures():
+            geom = geom.combine(feature.geometry())
+
+        self.currentFilter.srsid = crs.srsid()
+        self.currentFilter.wkt = geom.asWkt()
+        self.refreshFilter()

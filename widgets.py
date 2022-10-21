@@ -229,7 +229,7 @@ class FilterToolbar(QToolBar):
         self.manageFiltersAction.triggered.connect(self.manageFilters)
         self.saveCurrentFilterAction.triggered.connect(self.saveCurrentFilter)
         self.predicateAction.predicateChanged.connect(self.setFilterPredicate)
-        self.filterFromSelectionAction.triggered.connect(self.setFilterFromSelection)
+        self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.nameChanged.connect(self.labelFilterName.setText)
 
     def setFilterPredicate(self, predicate: Predicate):
@@ -239,26 +239,6 @@ class FilterToolbar(QToolBar):
     def setFilterFromExtent(self):
         dlg = ExtentDialog(self.controller, parent=self)
         dlg.show()
-
-    def setFilterFromSelection(self):
-        layer = iface.activeLayer()
-        if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
-            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
-            return
-        if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
-            return
-        if not layer.selectedFeatureCount():
-            iface.messageBar().pushInfo('', 'Keine Features gewählt')
-            return
-        crs = iface.activeLayer().crs()
-        geom = QgsGeometry.fromWkt('GEOMETRYCOLLECTION()')
-        for feature in layer.selectedFeatures():
-            geom = geom.combine(feature.geometry())
-
-        self.controller.currentFilter.srsid = crs.srsid()
-        self.controller.currentFilter.wkt = geom.asWkt()
-        self.controller.refreshFilter()
 
     def manageFilters(self):
         dlg = ManageFiltersDialog(self.controller, parent=self)
