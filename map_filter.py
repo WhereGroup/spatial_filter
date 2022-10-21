@@ -35,15 +35,12 @@ class MapFilter:
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(self.plugin_dir, 'i18n', f'MapFilter_{locale}.qm')
+        locale_path = os.path.join(self.plugin_dir, 'i18n', f'map_filter_{locale}.qm')
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
             QCoreApplication.installTranslator(self.translator)
-
-    def tr(self, message):
-        return QCoreApplication.translate('MapFilter', message)
 
     def initGui(self):
         self.toolbar = FilterToolbar(Controller(), self.iface.mainWindow())

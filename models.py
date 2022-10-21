@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
 
-from .filters import loadAllFilterDefinitions
+from .filters import FilterManager
 
 
 DataRole = Qt.UserRole + 1
@@ -10,7 +10,7 @@ class FilterModel(QAbstractListModel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.filters = loadAllFilterDefinitions()
+        self.filters = FilterManager.loadAllFilterDefinitions()
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
