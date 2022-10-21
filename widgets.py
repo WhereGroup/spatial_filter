@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
 )
 from qgis.gui import QgsExtentWidget
-from qgis.core import QgsApplication, QgsGeometry, QgsMapLayerType, QgsProject, QgsWkbTypes
+from qgis.core import QgsApplication, QgsGeometry, QgsProject
 from qgis.utils import iface
 
 from .controller import Controller
