@@ -170,6 +170,7 @@ class FilterToolbar(QToolBar):
         self.setupUi()
         self.setupConnections()
         self.controller.onToggled(False)
+        self.controller.refreshFilter()
 
     def setupUi(self):
         self.layout().setSpacing(5)

@@ -64,10 +64,15 @@ class FilterDefinition:
 
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
-    value = readValue(filterDef.name)
-    if value:
-        if FilterDefinition.fromStorageString(value) == filterDef:
-            return
+    if not filterDef.isValid:
+        iface.messageBar().pushInfo("", "Current filter definition is not valid")
+        return
+    if not filterDef.name:
+        iface.messageBar().pushInfo("", "Please provide a name for the filter")
+        return
+    if filterDef.isSaved:
+        return
+    if readValue(filterDef.name):
         if not askOverwrite(filterDef.name):
             return
     saveValue(filterDef.name, filterDef.storageString)
