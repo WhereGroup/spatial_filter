@@ -11,7 +11,7 @@ from .settings import FILTER_COMMENT
 
 class Controller(QObject):
     currentFilter: Optional[FilterDefinition]
-    nameChanged = pyqtSignal(str)
+    nameChanged = pyqtSignal(str, bool)
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
@@ -57,9 +57,9 @@ class Controller(QObject):
 
     def refreshFilter(self):
         if not self.currentFilter.isValid:
-            self.nameChanged.emit("Kein aktiver Filter")
+            self.nameChanged.emit("Kein aktiver Filter", True)
             return
-        self.nameChanged.emit(self.currentFilter.name)
+        self.nameChanged.emit(self.currentFilter.name, self.currentFilter.isSaved)
         self.updateProjectLayers(self.toolbarIsActive)
 
     def setFilterFromSelection(self):

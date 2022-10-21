@@ -230,7 +230,13 @@ class FilterToolbar(QToolBar):
         self.saveCurrentFilterAction.triggered.connect(self.saveCurrentFilter)
         self.predicateAction.predicateChanged.connect(self.setFilterPredicate)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
-        self.controller.nameChanged.connect(self.labelFilterName.setText)
+        self.controller.nameChanged.connect(self.changeDisplayedName)
+
+    def changeDisplayedName(self, text: str, isSaved: bool):
+        self.labelFilterName.setText(text)
+        font = self.labelFilterName.font()
+        font.setItalic(not isSaved)
+        self.labelFilterName.setFont(font)
 
     def setFilterPredicate(self, predicate: Predicate):
         self.controller.currentFilter.predicate = predicate.value
@@ -246,6 +252,7 @@ class FilterToolbar(QToolBar):
 
     def saveCurrentFilter(self):
         saveFilterDefinition(self.controller.currentFilter)
+        self.controller.refreshFilter()
 
 
 

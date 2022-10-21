@@ -58,6 +58,10 @@ class FilterDefinition:
     def isValid(self) -> bool:
         return all([self.wkt, self.srsid, self.predicate])
 
+    @property
+    def isSaved(self) -> bool:
+        return self.storageString == readValue(self.name)
+
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
     value = readValue(filterDef.name)
