@@ -38,7 +38,7 @@ class FilterDefinition:
         return QgsGeometry.fromWkt(self.wkt)
 
     def filterString(self, geom_name) -> str:
-        template = "ST_{predicate}({geom_name}, ST_GeomFromText('{wkt}', {srid}))"
+        template = "ST_{predicate}(ST_TRANSFORM({geom_name}, {srid}), ST_GeomFromText('{wkt}', {srid}))"
         return template.format(
             predicate=Predicate(self.predicate).name,
             geom_name=geom_name,

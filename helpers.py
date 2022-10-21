@@ -2,7 +2,7 @@ from typing import Any, List, Iterable
 
 from qgis.core import QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 
-from .settings import GROUP, FILTER_COMMENT, GEOMETRY_COLUMN
+from .settings import GROUP, FILTER_COMMENT
 
 
 def saveValue(key: str, value: Any):
@@ -64,8 +64,13 @@ def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
         removeFilterFromLayer(layer)
     currentFilter = layer.subsetString()
     connect = " AND " if currentFilter else ""
-    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(GEOMETRY_COLUMN)}'
+    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(getLayerGeomName(layer))}'
     layer.setSubsetString(newFilter)
+
+
+def getLayerGeomName(layer: QgsVectorLayer):
+    source = layer.source()
+    return source[source.find("(") + 1: source.find(")")]
 
 
 def getTestFilterDefinition():

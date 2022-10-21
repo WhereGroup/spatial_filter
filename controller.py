@@ -5,8 +5,8 @@ from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, Qgs
 from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate
-from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree
-from .settings import GEOMETRY_COLUMN, FILTER_COMMENT
+from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, getLayerGeomName
+from .settings import FILTER_COMMENT
 
 
 class Controller(QObject):
@@ -38,9 +38,9 @@ class Controller(QObject):
     def onLayersAdded(self, layers: Iterable[QgsMapLayer]):
         if not self.currentFilter.isValid:
             return
-        filterCondition = self.currentFilter.filterString(GEOMETRY_COLUMN)
-        filterString = f'{FILTER_COMMENT}{filterCondition}'
         for layer in getPostgisLayers(layers):
+            filterCondition = self.currentFilter.filterString(getLayerGeomName(layer))
+            filterString = f'{FILTER_COMMENT}{filterCondition}'
             layer.setSubsetString(filterString)
 
     def updateLayerFilters(self, checked: bool):
