@@ -35,7 +35,6 @@ def removeValue(key: str) -> None:
     settings.endGroup()
 
 
-
 def refreshLayerTree() -> None:
     pass
 
@@ -69,14 +68,13 @@ def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
 
 
 def getLayerGeomName(layer: QgsVectorLayer):
-    source = layer.source()
-    return source[source.find("(") + 1: source.find(")")]
+    return layer.dataProvider().uri().geometryColumn()
 
 
 def getTestFilterDefinition():
     from .filters import Predicate, FilterDefinition
     name = 'museumsinsel'
-    srsid = 3452
+    srsid = 3452  # 4326
     predicate = Predicate.INTERSECTS.value
     wkt = 'Polygon ((13.38780495720708963 52.50770539474106613, 13.41583642354597039 52.50770539474106613, ' \
           '13.41583642354597039 52.52548910505585411, 13.38780495720708963 52.52548910505585411, ' \

@@ -4,7 +4,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
 from qgis.utils import iface
 
-from .filters import FilterDefinition, Predicate
+from .filters import FilterDefinition, Predicate, saveFilterDefinition
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, getLayerGeomName
 from .settings import FILTER_COMMENT
 
@@ -57,7 +57,7 @@ class Controller(QObject):
 
     def refreshFilter(self):
         if not self.currentFilter.isValid:
-            self.nameChanged.emit("Kein aktiver Filter", True)
+            self.nameChanged.emit("No filter geometry set", False)
             return
         self.nameChanged.emit(self.currentFilter.name, self.currentFilter.isSaved)
         self.updateProjectLayers(self.toolbarIsActive)
@@ -65,13 +65,13 @@ class Controller(QObject):
     def setFilterFromSelection(self):
         layer = iface.activeLayer()
         if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
-            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            iface.messageBar().pushInfo('', 'Chose a polygon-Layer')
             return
         if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            iface.messageBar().pushInfo('', 'Polygon-Layer auswählen')
+            iface.messageBar().pushInfo('', 'Chose a polygon-Layer')
             return
         if not layer.selectedFeatureCount():
-            iface.messageBar().pushInfo('', 'Keine Features gewählt')
+            iface.messageBar().pushInfo('', 'No features selected')
             return
         crs = iface.activeLayer().crs()
         geom = QgsGeometry.fromWkt('GEOMETRYCOLLECTION()')
@@ -80,4 +80,12 @@ class Controller(QObject):
 
         self.currentFilter.srsid = crs.srsid()
         self.currentFilter.wkt = geom.asWkt()
+        self.refreshFilter()
+
+    def setFilterPredicate(self, predicate: Predicate):
+        self.currentFilter.predicate = predicate.value
+        self.refreshFilter()
+
+    def saveCurrentFilter(self):
+        saveFilterDefinition(self.currentFilter)
         self.refreshFilter()

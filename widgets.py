@@ -23,7 +23,7 @@ from qgis.utils import iface
 
 from .controller import Controller
 from .models import FilterModel, DataRole
-from .filters import Predicate, saveFilterDefinition, deleteFilterDefinition
+from .filters import Predicate, deleteFilterDefinition
 
 
 class ExtentDialog(QDialog):
@@ -118,6 +118,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
         deleteFilterDefinition(filterDefinition)
         self.setModel()
+        self.controller.refreshFilter()
 
     def onNameClicked(self):
         currentText = self.lineEditActiveFilter.text()
@@ -228,8 +229,8 @@ class FilterToolbar(QToolBar):
         self.toggleFilterAction.toggled.connect(self.controller.onToggled)
         self.filterFromExtentAction.triggered.connect(self.setFilterFromExtent)
         self.manageFiltersAction.triggered.connect(self.manageFilters)
-        self.saveCurrentFilterAction.triggered.connect(self.saveCurrentFilter)
-        self.predicateAction.predicateChanged.connect(self.setFilterPredicate)
+        self.saveCurrentFilterAction.triggered.connect(self.controller.saveCurrentFilter)
+        self.predicateAction.predicateChanged.connect(self.controller.setFilterPredicate)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.nameChanged.connect(self.changeDisplayedName)
 
@@ -239,10 +240,6 @@ class FilterToolbar(QToolBar):
         font.setItalic(not isSaved)
         self.labelFilterName.setFont(font)
 
-    def setFilterPredicate(self, predicate: Predicate):
-        self.controller.currentFilter.predicate = predicate.value
-        self.controller.refreshFilter()
-
     def setFilterFromExtent(self):
         dlg = ExtentDialog(self.controller, parent=self)
         dlg.show()
@@ -251,9 +248,6 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
-    def saveCurrentFilter(self):
-        saveFilterDefinition(self.controller.currentFilter)
-        self.controller.refreshFilter()
 
 
 
