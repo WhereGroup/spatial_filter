@@ -30,6 +30,9 @@ class FilterDefinition:
         self.srsid = int(self.srsid)
         self.predicate = int(self.predicate)
 
+    def __lt__(self, other):
+        return self.name.upper() < other.name.upper()
+
     @property
     def crs(self) -> QgsCoordinateReferenceSystem:
         return QgsCoordinateReferenceSystem.fromSrsId(self.srsid)
@@ -86,13 +89,18 @@ class FilterManager(QObject):
         if filterDef.isSaved:
             return
         if readValue(filterDef.name):
-            if not FilterManager().askOverwrite(filterDef.name):
+            if not self.askOverwrite(filterDef.name):
                 return
         saveValue(filterDef.name, filterDef.storageString)
 
     def deleteFilterDefinition(self, filterDef: FilterDefinition) -> None:
         if self.askDelete(filterDef.name):
             removeValue(filterDef.name)
+
+    def askApply(self) -> bool:
+        txt = self.tr('Current settings will be lost. Apply anyway?')
+        return QMessageBox.question(iface.mainWindow(), self.tr('Continue?'), txt,
+                                    QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
 
     def askOverwrite(self, name: str) -> bool:
         txt = self.tr('Overwrite settings for filter')

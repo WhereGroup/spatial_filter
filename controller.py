@@ -11,7 +11,8 @@ from .settings import FILTER_COMMENT
 
 class Controller(QObject):
     currentFilter: Optional[FilterDefinition]
-    nameChanged = pyqtSignal(str, bool)
+
+    filterChanged = pyqtSignal(FilterDefinition)
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
@@ -20,7 +21,7 @@ class Controller(QObject):
 
     def onToggled(self, checked: bool) -> None:
         self.toolbarIsActive = checked
-        if checked and not self.currentFilter:
+        if checked and not self.currentFilter.isValid:
             return
         self.updateProjectLayers(checked)
 
@@ -56,11 +57,9 @@ class Controller(QObject):
         self.updateLayerFilters(checked)
 
     def refreshFilter(self):
-        if not self.currentFilter.isValid:
-            self.nameChanged.emit(self.tr("No filter geometry set"), False)
-            return
-        self.nameChanged.emit(self.currentFilter.name, self.currentFilter.isSaved)
-        self.updateProjectLayers(self.toolbarIsActive)
+        self.filterChanged.emit(self.currentFilter)
+        if self.currentFilter.isValid:
+            self.updateProjectLayers(self.toolbarIsActive)
 
     def setFilterFromSelection(self):
         layer = iface.activeLayer()

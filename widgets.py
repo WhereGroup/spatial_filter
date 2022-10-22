@@ -23,7 +23,7 @@ from qgis.utils import iface
 
 from .controller import Controller
 from .models import FilterModel, DataRole
-from .filters import Predicate, FilterManager
+from .filters import Predicate, FilterManager, FilterDefinition
 
 
 class ExtentDialog(QDialog):
@@ -104,6 +104,8 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.buttonDelete.setEnabled(hasSelection)
 
     def onApplyClicked(self):
+        if not self.controller.currentFilter.isSaved and not FilterManager().askApply():
+            return
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
         filterDefinitionCopy = replace(filterDefinition)
@@ -160,6 +162,13 @@ class PredicateButton(QPushButton):
         if currentAction:
             return currentAction.predicate
 
+    def setCurrentAction(self, predicate: int):
+        for action in self.predicateActionGroup.actions():
+            if action.predicate == Predicate(predicate):
+                action.triggered.disconnect()
+                action.setChecked(True)
+                action.triggered.connect(self.onPredicateChanged)
+
 
 class FilterToolbar(QToolBar):
 
@@ -212,8 +221,9 @@ class FilterToolbar(QToolBar):
         self.filterFromSelectionAction.setToolTip(self.tr('Filter from selected features'))
         self.addAction(self.filterFromSelectionAction)
 
-        self.predicateAction = PredicateButton(self)
-        self.addWidget(self.predicateAction)
+        self.predicateButton = PredicateButton(self)
+        self.predicateButton.setIconSize(self.iconSize())
+        self.addWidget(self.predicateButton)
 
         self.saveCurrentFilterAction = QAction(self)
         self.saveCurrentFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
@@ -227,12 +237,12 @@ class FilterToolbar(QToolBar):
 
     def setupConnections(self):
         self.toggleFilterAction.toggled.connect(self.onToggled)
-        self.filterFromExtentAction.triggered.connect(self.setFilterFromExtent)
-        self.manageFiltersAction.triggered.connect(self.manageFilters)
+        self.filterFromExtentAction.triggered.connect(self.startFilterFromExtentDialog)
+        self.manageFiltersAction.triggered.connect(self.startManageFiltersDialog)
         self.saveCurrentFilterAction.triggered.connect(self.controller.saveCurrentFilter)
-        self.predicateAction.predicateChanged.connect(self.controller.setFilterPredicate)
+        self.predicateButton.predicateChanged.connect(self.controller.setFilterPredicate)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
-        self.controller.nameChanged.connect(self.changeDisplayedName)
+        self.controller.filterChanged.connect(self.onFilterChanged)
 
     def onToggled(self, checked: bool):
         self.controller.onToggled(checked)
@@ -242,17 +252,28 @@ class FilterToolbar(QToolBar):
             tooltip = self.tr('Activate filter')
         self.toggleFilterAction.setToolTip(tooltip)
 
-    def changeDisplayedName(self, text: str, isSaved: bool):
-        self.labelFilterName.setText(text)
+    def onFilterChanged(self, filterDef: FilterDefinition):
+        self.changeDisplayedName(filterDef)
+        self.predicateButton.setCurrentAction(filterDef.predicate)
+
+    def changeDisplayedName(self, filterDef: FilterDefinition):
+        if filterDef.isValid:
+            self.labelFilterName.setText(filterDef.name)
+            self.setItalicName(not filterDef.isSaved)
+        else:
+            self.labelFilterName.setText(self.tr("No filter geometry set"))
+            self.setItalicName(True)
+
+    def setItalicName(self, italic: bool):
         font = self.labelFilterName.font()
-        font.setItalic(not isSaved)
+        font.setItalic(italic)
         self.labelFilterName.setFont(font)
 
-    def setFilterFromExtent(self):
+    def startFilterFromExtentDialog(self):
         dlg = ExtentDialog(self.controller, parent=self)
         dlg.show()
 
-    def manageFilters(self):
+    def startManageFiltersDialog(self):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 

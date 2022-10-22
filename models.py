@@ -11,6 +11,7 @@ class FilterModel(QAbstractListModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.filters = FilterManager.loadAllFilterDefinitions()
+        self.filters.sort()
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:

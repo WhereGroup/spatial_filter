@@ -102,22 +102,22 @@
 <context>
     <name>Controller</name>
     <message>
-        <location filename="../controller.py" line="60"/>
+        <location filename="../controller.py" line="62"/>
         <source>No filter geometry set</source>
-        <translation>Keine Filtergeometrie gesetzt</translation>
+        <translation type="obsolete">Keine Filtergeometrie gesetzt</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="71"/>
+        <location filename="../controller.py" line="70"/>
         <source>Select a polygon layer</source>
         <translation>Polygonlayer auswählen</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="74"/>
+        <location filename="../controller.py" line="73"/>
         <source>No features selected</source>
         <translation>Keine Features gewählt</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="18"/>
+        <location filename="../controller.py" line="19"/>
         <source>New Filter</source>
         <translation>Neuer Filter</translation>
     </message>
@@ -133,45 +133,55 @@
 <context>
     <name>FilterManager</name>
     <message>
-        <location filename="../filters.py" line="81"/>
+        <location filename="../filters.py" line="84"/>
         <source>Current filter definition is not valid</source>
         <translation>Aktuelle Filterdefinition ist ungültig</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="84"/>
+        <location filename="../filters.py" line="87"/>
         <source>Please provide a name for the filter</source>
         <translation>Bitte benennen Sie erst den Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="98"/>
+        <location filename="../filters.py" line="106"/>
         <source>Overwrite settings for filter</source>
         <translation>Einstellungen überschreiben für Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="99"/>
+        <location filename="../filters.py" line="107"/>
         <source>Overwrite?</source>
         <translation>Überschreiben?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="103"/>
+        <location filename="../filters.py" line="111"/>
         <source>Delete filter</source>
         <translation>Filter löschen</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="104"/>
+        <location filename="../filters.py" line="112"/>
         <source>Delete?</source>
         <translation>Löschen?</translation>
+    </message>
+    <message>
+        <location filename="../filters.py" line="101"/>
+        <source>Current settings will be lost. Apply anyway?</source>
+        <translation>Aktuelle Einstellungen gehen verloren. Trotzdem anwenden?</translation>
+    </message>
+    <message>
+        <location filename="../filters.py" line="102"/>
+        <source>Continue?</source>
+        <translation>Fortfahren?</translation>
     </message>
 </context>
 <context>
     <name>FilterToolbar</name>
     <message>
-        <location filename="../widgets.py" line="207"/>
+        <location filename="../widgets.py" line="216"/>
         <source>Rectangular filter</source>
         <translation>Rechteckiger Filter</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="212"/>
+        <location filename="../widgets.py" line="221"/>
         <source>Filter from selected features</source>
         <translation>Filter aus gewählten Features</translation>
     </message>
@@ -181,34 +191,39 @@
         <translation type="obsolete">Filter ein/aus</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="220"/>
+        <location filename="../widgets.py" line="230"/>
         <source>Save current filter</source>
         <translation>Filter speichern</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="225"/>
+        <location filename="../widgets.py" line="235"/>
         <source>Manage filters</source>
         <translation>Filter verwalten</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="169"/>
+        <location filename="../widgets.py" line="178"/>
         <source>Filter Toolbar</source>
         <translation>Filterwerkzeugleiste</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="202"/>
+        <location filename="../widgets.py" line="211"/>
         <source>Show filter geometry</source>
         <translation>Filtergeometrie anzeigen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="242"/>
+        <location filename="../widgets.py" line="252"/>
         <source>Activate filter</source>
         <translation>Filter aktivieren</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="240"/>
+        <location filename="../widgets.py" line="250"/>
         <source>Deactivate filter</source>
         <translation>Filter deaktivieren</translation>
+    </message>
+    <message>
+        <location filename="../widgets.py" line="264"/>
+        <source>No filter geometry set</source>
+        <translation>Keine Filtergeometrie gesetzt</translation>
     </message>
 </context>
 <context>
@@ -249,12 +264,12 @@
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="123"/>
+        <location filename="../widgets.py" line="125"/>
         <source>Change Name</source>
         <translation>Namen ändern</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="123"/>
+        <location filename="../widgets.py" line="125"/>
         <source>New Name:</source>
         <translation>Neuer Name:</translation>
     </message>
@@ -270,7 +285,7 @@
 <context>
     <name>PredicateButton</name>
     <message>
-        <location filename="../widgets.py" line="137"/>
+        <location filename="../widgets.py" line="139"/>
         <source>Geometric predicate</source>
         <translation>Räumlicher Operator</translation>
     </message>
