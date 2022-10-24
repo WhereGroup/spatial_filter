@@ -4,10 +4,10 @@ from typing import List, Optional
 
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
-from qgis.core import QgsGeometry, QgsCoordinateReferenceSystem
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
-from .helpers import saveValue, readValue, allValues, removeValue
+from .helpers import saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName
 
 
 SPLIT_CHAR = '#'
@@ -41,13 +41,15 @@ class FilterDefinition:
     def geometry(self) -> QgsGeometry:
         return QgsGeometry.fromWkt(self.wkt)
 
-    def filterString(self, geom_name) -> str:
-        template = "ST_{predicate}(ST_TRANSFORM({geom_name}, {srid}), ST_GeomFromText('{wkt}', {srid}))"
+    def filterString(self, layer: QgsVectorLayer) -> str:
+        template = "ST_{predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"
+        geom_name = getLayerGeomName(layer)
         return template.format(
             predicate=Predicate(self.predicate).name,
             geom_name=geom_name,
             wkt=self.wkt,
-            srid=self.crs.postgisSrid()
+            srid=self.crs.postgisSrid(),
+            layer_srid=layer.crs().postgisSrid()
         )
 
     @property
@@ -64,7 +66,7 @@ class FilterDefinition:
 
     @property
     def isSaved(self) -> bool:
-        return self.storageString == readValue(self.name)
+        return self.storageString == readSettingsValue(self.name)
 
 
 class FilterManager(QObject):
@@ -73,11 +75,11 @@ class FilterManager(QObject):
 
     @staticmethod
     def loadFilterDefinition(name: str) -> FilterDefinition:
-        return FilterDefinition.fromStorageString(readValue(name))
+        return FilterDefinition.fromStorageString(readSettingsValue(name))
 
     @staticmethod
     def loadAllFilterDefinitions() -> List[FilterDefinition]:
-        return [FilterDefinition.fromStorageString(value) for value in allValues()]
+        return [FilterDefinition.fromStorageString(value) for value in allSettingsValues()]
 
     def saveFilterDefinition(self, filterDef: FilterDefinition) -> None:
         if not filterDef.isValid:
@@ -88,14 +90,14 @@ class FilterManager(QObject):
             return
         if filterDef.isSaved:
             return
-        if readValue(filterDef.name):
+        if readSettingsValue(filterDef.name):
             if not self.askOverwrite(filterDef.name):
                 return
-        saveValue(filterDef.name, filterDef.storageString)
+        saveSettingsValue(filterDef.name, filterDef.storageString)
 
     def deleteFilterDefinition(self, filterDef: FilterDefinition) -> None:
         if self.askDelete(filterDef.name):
-            removeValue(filterDef.name)
+            removeSettingsValue(filterDef.name)
 
     def askApply(self) -> bool:
         txt = self.tr('Current settings will be lost. Apply anyway?')

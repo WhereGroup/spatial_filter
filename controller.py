@@ -9,7 +9,7 @@ from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, 
 from .settings import FILTER_COMMENT
 
 
-class Controller(QObject):
+class FilterController(QObject):
     currentFilter: Optional[FilterDefinition]
 
     filterChanged = pyqtSignal(FilterDefinition)
@@ -25,7 +25,7 @@ class Controller(QObject):
             return
         self.updateProjectLayers(checked)
 
-    def udpateConnectionProjectLayersAdded(self, checked):
+    def updateConnectionProjectLayersAdded(self, checked):
         self.disconnectProjectLayersAdded()
         if checked:
             QgsProject.instance().layersAdded.connect(self.onLayersAdded)
@@ -40,7 +40,7 @@ class Controller(QObject):
         if not self.currentFilter.isValid:
             return
         for layer in getPostgisLayers(layers):
-            filterCondition = self.currentFilter.filterString(getLayerGeomName(layer))
+            filterCondition = self.currentFilter.filterString(layer)
             filterString = f'{FILTER_COMMENT}{filterCondition}'
             layer.setSubsetString(filterString)
 
@@ -53,7 +53,7 @@ class Controller(QObject):
         refreshLayerTree()
 
     def updateProjectLayers(self, checked):
-        self.udpateConnectionProjectLayersAdded(checked)
+        self.updateConnectionProjectLayersAdded(checked)
         self.updateLayerFilters(checked)
 
     def refreshFilter(self):
@@ -73,9 +73,7 @@ class Controller(QObject):
             iface.messageBar().pushInfo('', self.tr('No features selected'))
             return
         crs = iface.activeLayer().crs()
-        geom = QgsGeometry.fromWkt('GEOMETRYCOLLECTION()')
-        for feature in layer.selectedFeatures():
-            geom = geom.combine(feature.geometry())
+        geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
 
         self.currentFilter.srsid = crs.srsid()
         self.currentFilter.wkt = geom.asWkt()
