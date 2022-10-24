@@ -5,14 +5,14 @@ from qgis.core import QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 from .settings import GROUP, FILTER_COMMENT
 
 
-def saveValue(key: str, value: Any):
+def saveSettingsValue(key: str, value: Any):
     settings = QgsSettings()
     settings.beginGroup(GROUP)
     settings.setValue(key, value)
     settings.endGroup()
 
 
-def readValue(key: str, defaultValue: Any = None) -> Any:
+def readSettingsValue(key: str, defaultValue: Any = None) -> Any:
     settings = QgsSettings()
     settings.beginGroup(GROUP)
     value = settings.value(key, defaultValue)
@@ -20,7 +20,7 @@ def readValue(key: str, defaultValue: Any = None) -> Any:
     return value
 
 
-def allValues(defaultValue: Any = None) -> List[Any]:
+def allSettingsValues(defaultValue: Any = None) -> List[Any]:
     settings = QgsSettings()
     settings.beginGroup(GROUP)
     values = [settings.value(key, defaultValue) for key in settings.allKeys()]
@@ -28,7 +28,7 @@ def allValues(defaultValue: Any = None) -> List[Any]:
     return values
 
 
-def removeValue(key: str) -> None:
+def removeSettingsValue(key: str) -> None:
     settings = QgsSettings()
     settings.beginGroup(GROUP)
     settings.remove(key)
@@ -63,7 +63,7 @@ def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
         removeFilterFromLayer(layer)
     currentFilter = layer.subsetString()
     connect = " AND " if currentFilter else ""
-    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(getLayerGeomName(layer))}'
+    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(layer)}'
     layer.setSubsetString(newFilter)
 
 

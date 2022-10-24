@@ -21,13 +21,13 @@ from qgis.gui import QgsExtentWidget
 from qgis.core import QgsApplication, QgsGeometry, QgsProject
 from qgis.utils import iface
 
-from .controller import Controller
+from .controller import FilterController
 from .models import FilterModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
 
 
 class ExtentDialog(QDialog):
-    def __init__(self, controller: Controller, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.controller = controller
         self.setObjectName("mExtentDialog")
@@ -172,7 +172,7 @@ class PredicateButton(QPushButton):
 
 class FilterToolbar(QToolBar):
 
-    def __init__(self, controller: Controller, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.controller = controller
         self.setWindowTitle(self.tr('Filter Toolbar'))
