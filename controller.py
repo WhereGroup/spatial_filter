@@ -5,7 +5,7 @@ from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, Qgs
 from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate, FilterManager
-from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, getLayerGeomName
+from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree
 from .settings import FILTER_COMMENT
 
 
