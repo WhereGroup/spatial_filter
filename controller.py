@@ -32,7 +32,7 @@ class FilterController(QObject):
 
     def disconnectProjectLayersAdded(self):
         try:
-            QgsProject.instance().layersAdded.disconnect()
+            QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
         except TypeError:
             pass
 
