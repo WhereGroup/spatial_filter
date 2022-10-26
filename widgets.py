@@ -27,7 +27,7 @@ from .controller import FilterController
 from .models import FilterModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
 
-
+rbs = []
 class ExtentDialog(QDialog):
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -279,29 +279,39 @@ class FilterToolbar(QToolBar):
     def startManageFiltersDialog(self):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
-    def onShowGeom(self, checked: bool):
 
-        f = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
+    def onShowGeom(self, checked: bool):
 
         if checked:
             tooltip = self.tr('Hide filter geometry')
-
-            f_wkt = self.controller.currentFilter.wkt
-            f_geom = QgsGeometry.fromWkt(f_wkt)
-            f_srs = QgsCoordinateReferenceSystem("EPSG:" + str(self.controller.currentFilter.srsid))
-            p_srs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
-            f_proj = QgsCoordinateTransform(f_srs, p_srs, QgsProject.instance())
-            f_geom.transform(f_proj)
-            f.setToGeometry(f_geom, None)
-            f.setColor(QColor(0, 0, 255))
-            f.setWidth(3)
+            self.drawFilterGeom()
 
         else:
             tooltip = self.tr('Show filter geometry')
-
-            iface.mapCanvas().scene().removeItem(f)
+            self.removeFilterGeom()
 
         self.toggleVisibilityAction.setToolTip(tooltip)
+
+
+    def drawFilterGeom(self):
+        f = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
+        f_wkt = self.controller.currentFilter.wkt
+        f_geom = QgsGeometry.fromWkt(f_wkt)
+        f_srs = QgsCoordinateReferenceSystem("EPSG:" + str(self.controller.currentFilter.srsid))
+        p_srs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
+        f_proj = QgsCoordinateTransform(f_srs, p_srs, QgsProject.instance())
+        f_geom.transform(f_proj)
+        f.setToGeometry(f_geom, None)
+        f.setFillColor(QColor(0, 0, 255, 127))
+        f.setStrokeColor(QColor(0, 0, 0))
+        f.setWidth(2)
+        # Append to global variable
+        rbs.append(f)
+
+    def removeFilterGeom(self):
+        # Remove from global variable
+        for item in rbs:
+            iface.mapCanvas().scene().removeItem(item)
 
 
 
