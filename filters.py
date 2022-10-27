@@ -42,10 +42,25 @@ class FilterDefinition:
         return QgsGeometry.fromWkt(self.wkt)
 
     def filterString(self, layer: QgsVectorLayer) -> str:
-        template = "ST_{predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"
+        """Returns a layer filter string corresponding to the filter definition.
+
+        Args:
+            layer (QgsVectorLayer): The layer for which the filter should be applied
+
+        Returns:
+            str: A layer filter string
+        """
+
+        # ST_DISJOINT does not use spatial indexes, but we can use its opposite "NOT ST_INTERSECTS" which does
+        if self.predicate == Predicate.DISJOINT:
+            spatial_predicate = "NOT ST_INTERSECTS"
+        else:
+            spatial_predicate = f"ST_{Predicate(self.predicate).name}"
+
+        template = "{spatial_predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"
         geom_name = getLayerGeomName(layer)
         return template.format(
-            predicate=Predicate(self.predicate).name,
+            spatial_predicate=spatial_predicate,
             geom_name=geom_name,
             wkt=self.wkt,
             srid=self.crs.postgisSrid(),
