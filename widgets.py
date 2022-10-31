@@ -177,6 +177,7 @@ class FilterToolbar(QToolBar):
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.controller = controller
+        self.showGeomStatus = False
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -258,6 +259,7 @@ class FilterToolbar(QToolBar):
     def onFilterChanged(self, filterDef: FilterDefinition):
         self.changeDisplayedName(filterDef)
         self.predicateButton.setCurrentAction(filterDef.predicate)
+        self.onShowGeom(self.showGeomStatus)
 
     def changeDisplayedName(self, filterDef: FilterDefinition):
         if filterDef.isValid:
@@ -282,8 +284,11 @@ class FilterToolbar(QToolBar):
 
     def onShowGeom(self, checked: bool):
 
+        self.showGeomStatus = checked
+
         if checked:
             tooltip = self.tr('Hide filter geometry')
+            self.removeFilterGeom()
             self.drawFilterGeom()
 
         else:
@@ -294,6 +299,7 @@ class FilterToolbar(QToolBar):
 
 
     def drawFilterGeom(self):
+        # Get filter geometry, transform it and show it on canvas
         f = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         f_wkt = self.controller.currentFilter.wkt
         f_geom = QgsGeometry.fromWkt(f_wkt)
