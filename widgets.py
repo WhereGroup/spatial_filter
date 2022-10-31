@@ -17,17 +17,15 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
 )
-from qgis._core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsWkbTypes
-from qgis._gui import QgsRubberBand
-from qgis.gui import QgsExtentWidget
-from qgis.core import QgsApplication, QgsGeometry, QgsProject
+from qgis.gui import QgsExtentWidget, QgsRubberBand
+from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsWkbTypes
 from qgis.utils import iface
 
 from .controller import FilterController
 from .models import FilterModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
 
-rbs = []
+filter_rubberbands = []
 class ExtentDialog(QDialog):
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -300,23 +298,23 @@ class FilterToolbar(QToolBar):
 
     def drawFilterGeom(self):
         # Get filter geometry, transform it and show it on canvas
-        f = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
-        f_wkt = self.controller.currentFilter.wkt
-        f_geom = QgsGeometry.fromWkt(f_wkt)
-        f_srs = QgsCoordinateReferenceSystem("EPSG:" + str(self.controller.currentFilter.srsid))
-        p_srs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
-        f_proj = QgsCoordinateTransform(f_srs, p_srs, QgsProject.instance())
-        f_geom.transform(f_proj)
-        f.setToGeometry(f_geom, None)
-        f.setFillColor(QColor(0, 0, 255, 127))
-        f.setStrokeColor(QColor(0, 0, 0))
-        f.setWidth(2)
+        filter = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
+        filterWkt = self.controller.currentFilter.wkt
+        filterGeom = QgsGeometry.fromWkt(filterWkt)
+        filterSrs = QgsCoordinateReferenceSystem("EPSG:" + str(self.controller.currentFilter.srsid))
+        projectSrs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
+        filterProj = QgsCoordinateTransform(filterSrs, projectSrs, QgsProject.instance())
+        filterGeom.transform(filterProj)
+        filter.setToGeometry(filterGeom, None)
+        filter.setFillColor(QColor(0, 0, 255, 127))
+        filter.setStrokeColor(QColor(0, 0, 0))
+        filter.setWidth(2)
         # Append to global variable
-        rbs.append(f)
+        filter_rubberbands.append(filter)
 
     def removeFilterGeom(self):
         # Remove from global variable
-        for item in rbs:
+        for item in filter_rubberbands:
             iface.mapCanvas().scene().removeItem(item)
 
 
