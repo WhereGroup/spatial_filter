@@ -1,8 +1,8 @@
 from typing import Any, List, Iterable
 
-from qgis.core import QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
+from qgis.core import QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer, QgsMessageLog, Qgis
 
-from .settings import GROUP, FILTER_COMMENT
+from .settings import GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 
 def saveSettingsValue(key: str, value: Any):
@@ -50,20 +50,21 @@ def getPostgisLayers(layers: Iterable[QgsMapLayer]):
 
 def removeFilterFromLayer(layer: QgsVectorLayer):
     currentFilter = layer.subsetString()
-    if FILTER_COMMENT not in currentFilter:
+    if FILTER_COMMENT_START not in currentFilter:
         return
-    index = currentFilter.find(FILTER_COMMENT)
-    newFilter = currentFilter[:index]
+    start_index = currentFilter.find(FILTER_COMMENT_START)
+    stop_index = currentFilter.find(FILTER_COMMENT_STOP) + len(FILTER_COMMENT_STOP)
+    newFilter = currentFilter[:start_index] + currentFilter[stop_index:]
     layer.setSubsetString(newFilter)
 
 
 def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
     currentFilter = layer.subsetString()
-    if FILTER_COMMENT in currentFilter:
+    if FILTER_COMMENT_START in currentFilter:
         removeFilterFromLayer(layer)
     currentFilter = layer.subsetString()
     connect = " AND " if currentFilter else ""
-    newFilter = f'{currentFilter}{FILTER_COMMENT}{connect}{filterDef.filterString(layer)}'
+    newFilter = f'{currentFilter}{FILTER_COMMENT_START}{connect}{filterDef.filterString(layer)}{FILTER_COMMENT_STOP}'
     layer.setSubsetString(newFilter)
 
 

@@ -6,7 +6,7 @@ from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate, FilterManager
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree
-from .settings import FILTER_COMMENT
+from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 
 class FilterController(QObject):
@@ -32,7 +32,7 @@ class FilterController(QObject):
 
     def disconnectProjectLayersAdded(self):
         try:
-            QgsProject.instance().layersAdded.disconnect()
+            QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
         except TypeError:
             pass
 
@@ -41,7 +41,7 @@ class FilterController(QObject):
             return
         for layer in getPostgisLayers(layers):
             filterCondition = self.currentFilter.filterString(layer)
-            filterString = f'{FILTER_COMMENT}{filterCondition}'
+            filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
             layer.setSubsetString(filterString)
 
     def updateLayerFilters(self, checked: bool):
