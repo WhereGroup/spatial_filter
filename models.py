@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
+from qgis.core import QgsMessageLog, Qgis
 
 from .filters import FilterManager
 
@@ -12,6 +13,7 @@ class FilterModel(QAbstractListModel):
         super().__init__(parent)
         self.filters = FilterManager.loadAllFilterDefinitions()
         self.filters.sort()
+        QgsMessageLog.logMessage(f"{len(self.filters)} filter definitions loaded.", "FilterPlugin", level=Qgis.Info)
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:

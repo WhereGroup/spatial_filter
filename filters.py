@@ -8,9 +8,7 @@ from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
 from .helpers import saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName
-
-
-SPLIT_CHAR = '#'
+from .settings import SPLIT_STRING
 
 
 class Predicate(IntEnum):
@@ -23,19 +21,14 @@ class Predicate(IntEnum):
 class FilterDefinition:
     name: str
     wkt: str
-    srsid: int
+    crs: QgsCoordinateReferenceSystem
     predicate: int
 
     def __post_init__(self):
-        self.srsid = int(self.srsid)
         self.predicate = int(self.predicate)
 
     def __lt__(self, other):
         return self.name.upper() < other.name.upper()
-
-    @property
-    def crs(self) -> QgsCoordinateReferenceSystem:
-        return QgsCoordinateReferenceSystem.fromSrsId(self.srsid)
 
     @property
     def geometry(self) -> QgsGeometry:
@@ -69,15 +62,23 @@ class FilterDefinition:
 
     @property
     def storageString(self) -> str:
-        return SPLIT_CHAR.join([self.name, self.wkt, str(self.srsid), str(self.predicate)])
+        """Returns a text serialisation of the FilterDefinition.
+
+        For the CRS just the Auth ID is stored, e.g. EPSG:1234 or PROJ:9876.
+        """
+        return SPLIT_STRING.join([self.name, self.wkt, self.crs.authid(), str(self.predicate)])
 
     @staticmethod
     def fromStorageString(value: str) -> 'FilterDefinition':
-        return FilterDefinition(*value.split(SPLIT_CHAR))
+        parameters = value.split(SPLIT_STRING)
+        assert len(parameters) == 4, "Malformed FilterDefinition loaded from settings: {value}"
+        name, wkt, crs_auth_id, predicate = parameters
+        crs = QgsCoordinateReferenceSystem(crs_auth_id)
+        return FilterDefinition(name, wkt, crs, predicate)
 
     @property
     def isValid(self) -> bool:
-        return all([self.wkt, self.srsid, self.predicate])
+        return all([self.wkt, self.crs.isValid(), self.predicate])
 
     @property
     def isSaved(self) -> bool:

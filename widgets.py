@@ -5,7 +5,7 @@ from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -17,8 +17,8 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
 )
-from qgis.gui import QgsExtentWidget
-from qgis.core import QgsApplication, QgsGeometry, QgsProject
+from qgis.gui import QgsExtentWidget, QgsRubberBand
+from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsWkbTypes
 from qgis.utils import iface
 
 from .controller import FilterController
@@ -53,16 +53,10 @@ class ExtentDialog(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-    def getExtent(self):
-        return self.extentWidget.outputExtent()
-
-    def getCrs(self):
-        return self.extentWidget.outputCrs()
-
     def accept(self) -> None:
         if self.extentWidget.isValid():
-            self.controller.currentFilter.wkt = QgsGeometry.fromRect(self.getExtent()).asWkt()
-            self.controller.currentFilter.srsid = self.getCrs().srsid()
+            self.controller.currentFilter.wkt = QgsGeometry.fromRect(self.extentWidget.outputExtent()).asWkt()
+            self.controller.currentFilter.crs = self.extentWidget.outputCrs()
             self.controller.refreshFilter()
         super().accept()
 
@@ -175,6 +169,7 @@ class FilterToolbar(QToolBar):
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.controller = controller
+        self.showGeomStatus = False
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -202,8 +197,8 @@ class FilterToolbar(QToolBar):
 
         self.toggleVisibilityAction = QAction(self)
         visibilityIcon = QIcon()
-        pixmapOn = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
-        pixmapOff = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
+        pixmapOn = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
+        pixmapOff = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
         visibilityIcon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
         visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
         self.toggleVisibilityAction.setIcon(visibilityIcon)
@@ -243,6 +238,7 @@ class FilterToolbar(QToolBar):
         self.predicateButton.predicateChanged.connect(self.controller.setFilterPredicate)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.filterChanged.connect(self.onFilterChanged)
+        self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
 
     def onToggled(self, checked: bool):
         self.controller.onToggled(checked)
@@ -255,6 +251,7 @@ class FilterToolbar(QToolBar):
     def onFilterChanged(self, filterDef: FilterDefinition):
         self.changeDisplayedName(filterDef)
         self.predicateButton.setCurrentAction(filterDef.predicate)
+        self.onShowGeom(self.showGeomStatus)
 
     def changeDisplayedName(self, filterDef: FilterDefinition):
         if filterDef.isValid:
@@ -277,7 +274,40 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
+    def onShowGeom(self, checked: bool):
+
+        self.showGeomStatus = checked
+
+        if checked:
+            tooltip = self.tr('Hide filter geometry')
+            self.removeFilterGeom()
+            self.drawFilterGeom()
+
+        else:
+            tooltip = self.tr('Show filter geometry')
+            self.removeFilterGeom()
+
+        self.toggleVisibilityAction.setToolTip(tooltip)
 
 
+    def drawFilterGeom(self):
+        # Get filterRubberBand geometry, transform it and show it on canvas
+        filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
+        filterWkt = self.controller.currentFilter.wkt
+        filterGeom = QgsGeometry.fromWkt(filterWkt)
+        filterCrs = self.controller.currentFilter.crs
+        projectCrs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
+        filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())
+        filterGeom.transform(filterProj)
+        filterRubberBand.setToGeometry(filterGeom, None)
+        filterRubberBand.setFillColor(QColor(0, 0, 255, 127))
+        filterRubberBand.setStrokeColor(QColor(0, 0, 0))
+        filterRubberBand.setWidth(2)
+        # Append to global variable
+        self.controller.rubberBands.append(filterRubberBand)
 
-
+    def removeFilterGeom(self):
+        """Removes potentially existing rubber bands"""
+        while self.controller.rubberBands:
+            rubberBand = self.controller.rubberBands.pop()
+            iface.mapCanvas().scene().removeItem(rubberBand)

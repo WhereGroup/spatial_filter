@@ -1,7 +1,8 @@
 from typing import Iterable, Optional
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
+from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry, QgsCoordinateReferenceSystem
+from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate, FilterManager
@@ -11,12 +12,16 @@ from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 class FilterController(QObject):
     currentFilter: Optional[FilterDefinition]
+    rubberBands: Optional[Iterable[QgsRubberBand]]
 
     filterChanged = pyqtSignal(FilterDefinition)
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
-        self.currentFilter = FilterDefinition(self.tr('New Filter'), '', 3452, Predicate.INTERSECTS.value)
+        self.currentFilter = FilterDefinition(
+            self.tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS
+        )
+        self.rubberBands = []
         self.toolbarIsActive = False
 
     def onToggled(self, checked: bool) -> None:
@@ -75,7 +80,7 @@ class FilterController(QObject):
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
 
-        self.currentFilter.srsid = crs.srsid()
+        self.currentFilter.crs = crs
         self.currentFilter.wkt = geom.asWkt()
         self.refreshFilter()
 
