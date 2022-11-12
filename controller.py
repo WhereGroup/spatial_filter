@@ -1,4 +1,4 @@
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List
 
 from PyQt5.QtCore import pyqtSignal, QObject
 from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry, QgsCoordinateReferenceSystem
@@ -12,7 +12,7 @@ from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 class FilterController(QObject):
     currentFilter: Optional[FilterDefinition]
-    rubberBands: Optional[Iterable[QgsRubberBand]]
+    rubberBands: Optional[List[QgsRubberBand]]
 
     filterChanged = pyqtSignal(FilterDefinition)
 
