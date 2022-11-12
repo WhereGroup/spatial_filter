@@ -19,6 +19,8 @@ from PyQt5.QtWidgets import (
 )
 from qgis.gui import QgsExtentWidget, QgsRubberBand
 from qgis.core import (
+    QgsMessageLog,
+    Qgis,
     QgsApplication,
     QgsGeometry,
     QgsProject,
@@ -29,6 +31,7 @@ from qgis.core import (
 )
 from qgis.utils import iface
 
+from .maptool import PolygonTool
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
@@ -249,8 +252,8 @@ class FilterToolbar(QToolBar):
 
         self.toggleVisibilityAction = QAction(self)
         visibilityIcon = QIcon()
-        pixmapOn = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
-        pixmapOff = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
+        pixmapOn = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
+        pixmapOff = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
         visibilityIcon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
         visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
         self.toggleVisibilityAction.setIcon(visibilityIcon)
@@ -264,9 +267,14 @@ class FilterToolbar(QToolBar):
         self.addAction(self.filterFromExtentAction)
 
         self.filterFromSelectionAction = QAction(self)
-        self.filterFromSelectionAction.setIcon(QgsApplication.getThemeIcon('/mActionAddPolygon.svg'))
+        self.filterFromSelectionAction.setIcon(QgsApplication.getThemeIcon('/mActionSelectFreehand.svg'))
         self.filterFromSelectionAction.setToolTip(self.tr('Filter from selected features'))
         self.addAction(self.filterFromSelectionAction)
+
+        self.sketchingToolAction = QAction(self)
+        self.sketchingToolAction.setIcon(QgsApplication.getThemeIcon('/mActionAddPolygon.svg'))
+        self.sketchingToolAction.setToolTip(self.tr('Draw a filter polygon on the canvas'))
+        self.addAction(self.sketchingToolAction)
 
         self.predicateButton = PredicateButton(self)
         self.predicateButton.setIconSize(self.iconSize())
@@ -297,6 +305,7 @@ class FilterToolbar(QToolBar):
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
+        self.sketchingToolAction.triggered.connect(self.startSketchingTool)
 
     def onToggled(self, checked: bool):
         self.controller.onToggled(checked)
@@ -337,22 +346,17 @@ class FilterToolbar(QToolBar):
         dlg.exec()
 
     def onShowGeom(self, checked: bool):
-
         self.showGeomStatus = checked
-
         if checked:
             tooltip = self.tr('Hide filter geometry')
             self.removeFilterGeom()
-            self.drawFilterGeom()
-
+            self.showFilterGeom()
         else:
             tooltip = self.tr('Show filter geometry')
             self.removeFilterGeom()
-
         self.toggleVisibilityAction.setToolTip(tooltip)
 
-
-    def drawFilterGeom(self):
+    def showFilterGeom(self):
         # Get filterRubberBand geometry, transform it and show it on canvas
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterWkt = self.controller.currentFilter.wkt
@@ -373,3 +377,21 @@ class FilterToolbar(QToolBar):
         while self.controller.rubberBands:
             rubberBand = self.controller.rubberBands.pop()
             iface.mapCanvas().scene().removeItem(rubberBand)
+
+    def startSketchingTool(self):
+        self.mapTool = PolygonTool()
+        self.mapTool.sketchFinished.connect(self.onSketchFinished)
+        iface.mapCanvas().setMapTool(self.mapTool)
+
+    def stopSketchingTool(self):
+        iface.mapCanvas().unsetMapTool(self.mapTool)
+        self.mapTool.deactivate()
+
+    def onSketchFinished(self, geometry: QgsGeometry):
+        self.stopSketchingTool()
+        if not geometry.isGeosValid():
+            QgsMessageLog.logMessage(self.tr("Geometry is not valid"), "FilterPlugin", level=Qgis.Warning)
+            return
+        self.controller.currentFilter.wkt = geometry.asWkt()
+        self.controller.currentFilter.crs = QgsProject.instance().crs()
+        self.controller.refreshFilter()
