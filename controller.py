@@ -6,7 +6,7 @@ from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
 from .filters import FilterDefinition, Predicate, FilterManager
-from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree
+from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 
@@ -51,10 +51,10 @@ class FilterController(QObject):
 
     def updateLayerFilters(self, checked: bool):
         for layer in getPostgisLayers(QgsProject.instance().mapLayers().values()):
-            if not checked:
-                removeFilterFromLayer(layer)
-            else:
+            if checked and not hasLayerException(layer):
                 addFilterToLayer(layer, self.currentFilter)
+            else:
+                removeFilterFromLayer(layer)
         refreshLayerTree()
 
     def updateProjectLayers(self, checked):

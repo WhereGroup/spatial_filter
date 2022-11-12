@@ -1,8 +1,8 @@
 from typing import Any, List, Iterable
 
-from qgis.core import QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer, QgsMessageLog, Qgis
+from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 
-from .settings import GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP
+from .settings import GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
 
 
 def saveSettingsValue(key: str, value: Any):
@@ -70,6 +70,14 @@ def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
 
 def getLayerGeomName(layer: QgsVectorLayer):
     return layer.dataProvider().uri().geometryColumn()
+
+
+def hasLayerException(layer: QgsVectorLayer) -> bool:
+    return QgsExpressionContextUtils.layerScope(layer).variable(LAYER_EXCEPTION_VARIABLE) == 'true'
+
+
+def setLayerException(layer: QgsVectorLayer, exception: bool) -> None:
+    QgsExpressionContextUtils.setLayerVariable(layer, LAYER_EXCEPTION_VARIABLE, exception)
 
 
 def getTestFilterDefinition():
