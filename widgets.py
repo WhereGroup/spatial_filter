@@ -5,7 +5,7 @@ from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QColor, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -20,9 +20,7 @@ from PyQt5.QtWidgets import (
 from qgis.gui import QgsExtentWidget, QgsRubberBand
 from qgis.core import (
     QgsApplication,
-    QgsExpressionContextUtils,
     QgsGeometry,
-    QgsMapLayerProxyModel,
     QgsProject,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
@@ -33,7 +31,7 @@ from qgis.utils import iface
 
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
-from .models import FilterModel, LayerModel, getLayerModel, DataRole
+from .models import FilterModel, LayerModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
 
 
@@ -77,7 +75,7 @@ class LayerExceptionsDialog(QDialog):
         super().__init__(parent=parent)
         self.controller = controller
         self.setObjectName("mLayerExceptionsDialog")
-        self.setWindowTitle(self.tr("Check layers to exclude from filter"))
+        self.setWindowTitle(self.tr("Exclude layers from filter"))
         self.setupUi()
         self.listView.setModel(LayerModel())
         self.adjustSize()
@@ -332,7 +330,7 @@ class FilterToolbar(QToolBar):
 
     def startLayerExceptionsDialog(self):
         dlg = LayerExceptionsDialog(self.controller, parent=self)
-        dlg.show()
+        dlg.exec()
 
     def startManageFiltersDialog(self):
         dlg = ManageFiltersDialog(self.controller, parent=self)
