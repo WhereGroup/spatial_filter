@@ -5,7 +5,7 @@ from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QColor
+from PyQt5.QtGui import QIcon, QPixmap, QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -15,14 +15,25 @@ from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QSizePolicy,
-    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
+    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog, QTreeView
 )
 from qgis.gui import QgsExtentWidget, QgsRubberBand
-from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsWkbTypes
+from qgis.core import (
+    QgsApplication,
+    QgsExpressionContextUtils,
+    QgsGeometry,
+    QgsMapLayerProxyModel,
+    QgsProject,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform,
+    QgsVectorLayer,
+    QgsWkbTypes,
+)
 from qgis.utils import iface
 
+from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
-from .models import FilterModel, DataRole
+from .models import FilterModel, LayerModel, getLayerModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
 
 
@@ -59,6 +70,49 @@ class ExtentDialog(QDialog):
             self.controller.currentFilter.crs = self.extentWidget.outputCrs()
             self.controller.refreshFilter()
         super().accept()
+
+
+class LayerExceptionsDialog(QDialog):
+    def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
+        super().__init__(parent=parent)
+        self.controller = controller
+        self.setObjectName("mLayerExceptionsDialog")
+        self.setWindowTitle(self.tr("Check layers to exclude from filter"))
+        self.setupUi()
+        self.listView.setModel(LayerModel())
+        self.adjustSize()
+
+    def setupUi(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.verticalLayout = QVBoxLayout(self)
+        self.listView = QTreeView(self)
+        self.listView.header().hide()
+        self.verticalLayout.addWidget(self.listView)
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        self.verticalLayout.addWidget(self.buttonBox)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+    def accept(self) -> None:
+        model = self.listView.model()
+        for index in range(model.rowCount()):
+            item = model.item(index)
+            layer = item.data()
+            self.setExceptionForLayer(layer, bool(item.checkState() == Qt.Checked))
+        super().accept()
+
+    def setExceptionForLayer(self, layer: QgsVectorLayer, exception: bool) -> None:
+        if exception:
+            removeFilterFromLayer(layer)
+        if not exception and hasLayerException(layer) and self.controller.toolbarIsActive:
+            addFilterToLayer(layer, self.controller.currentFilter)
+        setLayerException(layer, exception)
 
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'named_filters_dialog.ui'))
@@ -220,6 +274,11 @@ class FilterToolbar(QToolBar):
         self.predicateButton.setIconSize(self.iconSize())
         self.addWidget(self.predicateButton)
 
+        self.layerExceptionsAction = QAction(self)
+        self.layerExceptionsAction.setIcon(QgsApplication.getThemeIcon('/mIconLayerTree.svg'))
+        self.layerExceptionsAction.setToolTip(self.tr('Exclude layers from filter'))
+        self.addAction(self.layerExceptionsAction)
+
         self.saveCurrentFilterAction = QAction(self)
         self.saveCurrentFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
         self.saveCurrentFilterAction.setToolTip(self.tr('Save current filter'))
@@ -233,6 +292,7 @@ class FilterToolbar(QToolBar):
     def setupConnections(self):
         self.toggleFilterAction.toggled.connect(self.onToggled)
         self.filterFromExtentAction.triggered.connect(self.startFilterFromExtentDialog)
+        self.layerExceptionsAction.triggered.connect(self.startLayerExceptionsDialog)
         self.manageFiltersAction.triggered.connect(self.startManageFiltersDialog)
         self.saveCurrentFilterAction.triggered.connect(self.controller.saveCurrentFilter)
         self.predicateButton.predicateChanged.connect(self.controller.setFilterPredicate)
@@ -268,6 +328,10 @@ class FilterToolbar(QToolBar):
 
     def startFilterFromExtentDialog(self):
         dlg = ExtentDialog(self.controller, parent=self)
+        dlg.show()
+
+    def startLayerExceptionsDialog(self):
+        dlg = LayerExceptionsDialog(self.controller, parent=self)
         dlg.show()
 
     def startManageFiltersDialog(self):
