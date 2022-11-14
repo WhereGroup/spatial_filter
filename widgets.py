@@ -181,6 +181,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
 
 class PredicateButton(QPushButton):
     predicateChanged = pyqtSignal(Predicate)
+    bboxChanged = pyqtSignal(bool)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -188,6 +189,8 @@ class PredicateButton(QPushButton):
         self.setToolTip(self.tr('Geometric predicate'))
         self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
         self.menu = QMenu(parent=parent)
+
+        self.menu.addSection(self.tr('Geometric Predicate'))
         self.predicateActionGroup = QActionGroup(self)
         self.predicateActionGroup.setExclusive(True)
         for predicate in Predicate:
@@ -200,6 +203,29 @@ class PredicateButton(QPushButton):
             action.triggered.connect(self.onPredicateChanged)
             self.predicateActionGroup.addAction(action)
         self.menu.addActions(self.predicateActionGroup.actions())
+        self.menu.addSeparator()
+
+        self.menu.addSection(self.tr('Object of comparison'))
+        self.bboxActionGroup = QActionGroup(self)
+        self.bboxActionGroup.setExclusive(True)
+        self.bboxTrueAction = QAction(self.menu)
+        self.bboxTrueAction.setCheckable(True)
+        self.bboxTrueAction.setText(self.tr('BBOX'))
+        self.bboxTrueAction.setToolTip(self.tr('Compare features to the filters bounding box'))
+        self.bboxTrueAction.bbox = True
+        self.bboxTrueAction.triggered.connect(self.onBboxChanged)
+        self.bboxFalseAction = QAction(self.menu)
+        self.bboxFalseAction.setCheckable(True)
+        self.bboxFalseAction.setChecked(True)
+        self.bboxFalseAction.setText(self.tr('GEOM'))
+        self.bboxFalseAction.setToolTip(self.tr('Compare features to the exact filter geometry'))
+        self.bboxFalseAction.bbox = False
+        self.bboxFalseAction.triggered.connect(self.onBboxChanged)
+
+        self.bboxActionGroup.addAction(self.bboxTrueAction)
+        self.bboxActionGroup.addAction(self.bboxFalseAction)
+        self.menu.addActions(self.bboxActionGroup.actions())
+
         self.setMenu(self.menu)
         self.setFlat(True)
 
@@ -211,12 +237,26 @@ class PredicateButton(QPushButton):
         if currentAction:
             return currentAction.predicate
 
-    def setCurrentAction(self, predicate: int):
+    def setCurrentPredicateAction(self, predicate: int):
         for action in self.predicateActionGroup.actions():
             if action.predicate == Predicate(predicate):
                 action.triggered.disconnect()
                 action.setChecked(True)
                 action.triggered.connect(self.onPredicateChanged)
+
+    def setCurrentBboxAction(self, bbox: bool):
+        action = self.bboxTrueAction if bbox else self.bboxFalseAction
+        action.triggered.disconnect()
+        action.setChecked(True)
+        action.triggered.connect(self.onBboxChanged)
+
+    def onBboxChanged(self):
+        self.bboxChanged.emit(self.getBbox())
+
+    def getBbox(self):
+        currentAction = self.bboxActionGroup.checkedAction()
+        if currentAction:
+            return currentAction.bbox
 
 
 class FilterToolbar(QToolBar):
@@ -302,6 +342,7 @@ class FilterToolbar(QToolBar):
         self.manageFiltersAction.triggered.connect(self.startManageFiltersDialog)
         self.saveCurrentFilterAction.triggered.connect(self.controller.saveCurrentFilter)
         self.predicateButton.predicateChanged.connect(self.controller.setFilterPredicate)
+        self.predicateButton.bboxChanged.connect(self.controller.setFilterBbox)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
@@ -317,7 +358,8 @@ class FilterToolbar(QToolBar):
 
     def onFilterChanged(self, filterDef: FilterDefinition):
         self.changeDisplayedName(filterDef)
-        self.predicateButton.setCurrentAction(filterDef.predicate)
+        self.predicateButton.setCurrentPredicateAction(filterDef.predicate)
+        self.predicateButton.setCurrentBboxAction(filterDef.bbox)
         self.onShowGeom(self.showGeomStatus)
 
     def changeDisplayedName(self, filterDef: FilterDefinition):
@@ -359,8 +401,9 @@ class FilterToolbar(QToolBar):
     def showFilterGeom(self):
         # Get filterRubberBand geometry, transform it and show it on canvas
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
-        filterWkt = self.controller.currentFilter.wkt
-        filterGeom = QgsGeometry.fromWkt(filterWkt)
+        filterGeom = self.controller.currentFilter.geometry
+        if self.controller.currentFilter.bbox:
+            filterGeom = QgsGeometry.fromRect(filterGeom.boundingBox())
         filterCrs = self.controller.currentFilter.crs
         projectCrs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())

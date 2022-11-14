@@ -19,7 +19,7 @@ class FilterController(QObject):
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
         self.currentFilter = FilterDefinition(
-            self.tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS
+            self.tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS, False
         )
         self.rubberBands = []
         self.toolbarIsActive = False
@@ -86,6 +86,10 @@ class FilterController(QObject):
 
     def setFilterPredicate(self, predicate: Predicate):
         self.currentFilter.predicate = predicate.value
+        self.refreshFilter()
+
+    def setFilterBbox(self, bbox: bool):
+        self.currentFilter.bbox = bbox
         self.refreshFilter()
 
     def saveCurrentFilter(self):
