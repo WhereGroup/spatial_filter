@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
 
 from qgis.gui import QgsExtentWidget, QgsRubberBand, QgsSymbolButton
 from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
-    QgsWkbTypes, QgsSymbol, QgsMarkerSymbol
+    QgsWkbTypes, QgsSymbol, QgsFillSymbol
 from qgis.utils import iface
 
 from .controller import FilterController
@@ -212,6 +212,11 @@ class FilterToolbar(QToolBar):
         self.styleFilterAction = QgsSymbolButton(self, self.tr('Filter style'))
         self.styleFilterAction.setMinimumWidth(50)
         self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
+        defaultFilterStyle = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
+        defaultFilterStyle.setOpacity(0.5)
+        self.styleFilterAction.setSymbol(defaultFilterStyle)
+
+
         self.addWidget(self.styleFilterAction)
 
         self.filterFromExtentAction = QAction(self)
@@ -247,6 +252,7 @@ class FilterToolbar(QToolBar):
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
+        self.styleFilterAction.changed.connect(self.onFilteStyleChanged)
 
     def onToggled(self, checked: bool):
         self.controller.onToggled(checked)
@@ -282,9 +288,10 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
-    def startStyleFilterDialog(self):
-        dlg = StyleFilterDialog(self.controller, parent=self)
-        dlg.exec()
+    def onFilteStyleChanged(self):
+
+        if self.showGeomStatus:
+            self.drawFilterGeom(self.styleFilterAction.symbol())
 
     def onShowGeom(self, checked: bool):
 
@@ -293,7 +300,7 @@ class FilterToolbar(QToolBar):
         if checked:
             tooltip = self.tr('Hide filter geometry')
             self.removeFilterGeom()
-            self.drawFilterGeom()
+            self.drawFilterGeom(self.styleFilterAction.symbol())
 
         else:
             tooltip = self.tr('Show filter geometry')
@@ -301,8 +308,8 @@ class FilterToolbar(QToolBar):
 
         self.toggleVisibilityAction.setToolTip(tooltip)
 
-    def drawFilterGeom(self):
-        # Get filterRubberBand geometry, transform it and show it on canvas
+    def drawFilterGeom(self, filterSymbol: QgsSymbol):
+        """Get filterRubberBand geometry, transform it and show it on canvas"""
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterWkt = self.controller.currentFilter.wkt
         filterGeom = QgsGeometry.fromWkt(filterWkt)
@@ -311,9 +318,7 @@ class FilterToolbar(QToolBar):
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())
         filterGeom.transform(filterProj)
         filterRubberBand.setToGeometry(filterGeom, None)
-        filterRubberBand.setFillColor(QColor(0, 0, 255, 127))
-        filterRubberBand.setStrokeColor(QColor(0, 0, 0))
-        filterRubberBand.setWidth(2)
+        filterRubberBand.setSymbol(filterSymbol)
         # Append to global variable
         self.controller.rubberBands.append(filterRubberBand)
 
