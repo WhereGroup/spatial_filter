@@ -14,25 +14,20 @@ class FilterController(QObject):
     currentFilter: Optional[FilterDefinition]
     rubberBands: Optional[List[QgsRubberBand]]
 
-    filterChanged = pyqtSignal(FilterDefinition)
+    filterChanged = pyqtSignal(object)
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
-        self.currentFilter = FilterDefinition(
-            self.tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS, False
-        )
+        self.currentFilter = None
         self.rubberBands = []
-        self.toolbarIsActive = False
 
-    def onToggled(self, checked: bool) -> None:
-        self.toolbarIsActive = checked
-        if checked and not self.currentFilter.isValid:
-            return
-        self.updateProjectLayers(checked)
+    def removeFilter(self) -> None:
+        self.currentFilter = None
+        self.refreshFilter()
 
-    def updateConnectionProjectLayersAdded(self, checked):
+    def updateConnectionProjectLayersAdded(self):
         self.disconnectProjectLayersAdded()
-        if checked:
+        if self.hasValidFilter():
             QgsProject.instance().layersAdded.connect(self.onLayersAdded)
 
     def disconnectProjectLayersAdded(self):
@@ -49,22 +44,21 @@ class FilterController(QObject):
             filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
             layer.setSubsetString(filterString)
 
-    def updateLayerFilters(self, checked: bool):
+    def updateLayerFilters(self):
         for layer in getPostgisLayers(QgsProject.instance().mapLayers().values()):
-            if checked and not hasLayerException(layer):
+            if self.hasValidFilter() and not hasLayerException(layer):
                 addFilterToLayer(layer, self.currentFilter)
             else:
                 removeFilterFromLayer(layer)
         refreshLayerTree()
 
-    def updateProjectLayers(self, checked):
-        self.updateConnectionProjectLayersAdded(checked)
-        self.updateLayerFilters(checked)
+    def updateProjectLayers(self):
+        self.updateConnectionProjectLayersAdded()
+        self.updateLayerFilters()
 
     def refreshFilter(self):
         self.filterChanged.emit(self.currentFilter)
-        if self.currentFilter.isValid:
-            self.updateProjectLayers(self.toolbarIsActive)
+        self.updateProjectLayers()
 
     def setFilterFromSelection(self):
         layer = iface.activeLayer()
@@ -85,13 +79,22 @@ class FilterController(QObject):
         self.refreshFilter()
 
     def setFilterPredicate(self, predicate: Predicate):
+        self.initFilter()
         self.currentFilter.predicate = predicate.value
         self.refreshFilter()
 
     def setFilterBbox(self, bbox: bool):
+        self.initFilter()
         self.currentFilter.bbox = bbox
         self.refreshFilter()
 
     def saveCurrentFilter(self):
         saveFilterDefinition(self.currentFilter)
         self.refreshFilter()
+
+    def initFilter(self):
+        if not self.currentFilter:
+            self.currentFilter = FilterDefinition.defaultFilter()
+
+    def hasValidFilter(self):
+        return self.currentFilter and self.currentFilter.isValid
