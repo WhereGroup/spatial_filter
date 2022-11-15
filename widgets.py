@@ -4,7 +4,7 @@ from dataclasses import replace
 from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QRect
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
@@ -17,8 +17,10 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog
 )
-from qgis.gui import QgsExtentWidget, QgsRubberBand
-from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsWkbTypes
+
+from qgis.gui import QgsExtentWidget, QgsRubberBand, QgsSymbolButton
+from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
+    QgsWkbTypes, QgsSymbol, QgsMarkerSymbol
 from qgis.utils import iface
 
 from .controller import FilterController
@@ -116,7 +118,8 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
 
     def onNameClicked(self):
         currentText = self.lineEditActiveFilter.text()
-        text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal, text=currentText)
+        text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal,
+                                        text=currentText)
         if not ok:
             return
         self.lineEditActiveFilter.setText(text)
@@ -206,6 +209,11 @@ class FilterToolbar(QToolBar):
         self.toggleVisibilityAction.setToolTip(self.tr('Show filter geometry'))
         self.addAction(self.toggleVisibilityAction)
 
+        self.styleFilterAction = QgsSymbolButton(self, self.tr('Filter style'))
+        self.styleFilterAction.setMinimumWidth(50)
+        self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
+        self.addWidget(self.styleFilterAction)
+
         self.filterFromExtentAction = QAction(self)
         self.filterFromExtentAction.setIcon(QgsApplication.getThemeIcon('/mActionAddBasicRectangle.svg'))
         self.filterFromExtentAction.setToolTip(self.tr('Rectangular filter'))
@@ -274,6 +282,10 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
+    def startStyleFilterDialog(self):
+        dlg = StyleFilterDialog(self.controller, parent=self)
+        dlg.exec()
+
     def onShowGeom(self, checked: bool):
 
         self.showGeomStatus = checked
@@ -288,7 +300,6 @@ class FilterToolbar(QToolBar):
             self.removeFilterGeom()
 
         self.toggleVisibilityAction.setToolTip(tooltip)
-
 
     def drawFilterGeom(self):
         # Get filterRubberBand geometry, transform it and show it on canvas
