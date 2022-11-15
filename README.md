@@ -19,6 +19,10 @@ Erstellen Sie einen Filter mit dem Plugin, indem Sie eine Ebenenausdehnung verwe
 
 General Public License v2
 
+### Entwicklung
+
+WhereGroup Bonn 2022: Peter Gipper, Johannes Körger, Mathias Gröbe
+
 ### Beitragen
 Bitte Information in der [CONTRIBUTE.md](CONTRIBUTE.md) beachten.
 
@@ -41,6 +45,10 @@ Create a filter with the plugin by using a layer extent, selecting a feature, an
 ### License
 
 General Public License v2
+
+### Development
+
+WhereGroup Bonn 2022: Peter Gipper, Johannes Körger, Mathias Gröbe
 
 ### Contribute
 
