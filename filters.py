@@ -121,7 +121,7 @@ def deleteFilterDefinition(filterDef: FilterDefinition) -> None:
         removeSettingsValue(filterDef.name)
 
 
-def askApply(self) -> bool:
+def askApply() -> bool:
     txt = tr('Current settings will be lost. Apply anyway?')
     return QMessageBox.question(iface.mainWindow(), tr('Continue?'), txt,
                                 QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
