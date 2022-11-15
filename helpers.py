@@ -1,8 +1,13 @@
 from typing import Any, List, Iterable
 
+from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 
 from .settings import GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
+
+
+def tr(message):
+    return QCoreApplication.translate('@default', message)
 
 
 def saveSettingsValue(key: str, value: Any):
