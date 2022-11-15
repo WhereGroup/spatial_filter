@@ -6,7 +6,7 @@ Please scroll down for the English version.
 
 Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS Layer im aktuellen QGIS Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine bestimmte Polygongeometrie oder deren minimal umfassendes Rechteck begrenzen. Es ist möglich Ausnahmen für einzelne Layer zu definieren und die Filtergeometrie anzuzeigen.
 
-Die Entwicklung dieses Plugins wurde von der Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG) finanziert.
+Die Entwicklung dieses Plugins wurde von der Hessischen Verwaltung für Bodenmanagement und Geoinformation (HVBG) finanziert.
 
 ### Installation
 
@@ -32,7 +32,7 @@ Bitte Information in der [CONTRIBUTE.md](CONTRIBUTE.md) beachten.
 
 Create and manage spatial filters that are applied to PostGIS vector layers in the current project. It allows for the limited viewing and editing of the layer by a polygon geometry or its bounding box. It is possible to define exceptions for layers and display the filter geometry.
 
-The development of this plugin was funded by the Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG).
+The development of this plugin was funded by the Hessischen Verwaltung für Bodenmanagement und Geoinformation (HVBG).
 
 ### Installation
 You can install the plugin directly from the plugin repository. Otherwise, download a release and install the zipped Plugin folder as a QGIS extension. There are no further dependencies.
