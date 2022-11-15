@@ -311,7 +311,7 @@ class FilterToolbar(QToolBar):
         self.addAction(self.filterFromExtentAction)
 
         self.filterFromSelectionAction = QAction(self)
-        self.filterFromSelectionAction.setIcon(QgsApplication.getThemeIcon('/mActionSelectFreehand.svg'))
+        self.filterFromSelectionAction.setIcon(QgsApplication.getThemeIcon('/mActionAddPointCloudLayer.svg'))
         self.filterFromSelectionAction.setToolTip(self.tr('Filter from selected features'))
         self.addAction(self.filterFromSelectionAction)
 
@@ -359,9 +359,21 @@ class FilterToolbar(QToolBar):
         if not filterDef:
             self.predicateButton.setCurrentPredicateAction(Predicate.INTERSECTS)
             self.predicateButton.setCurrentBboxAction(False)
+            self.removeFilterAction.setEnabled(False)
+            self.labelFilterName.setEnabled(False)
+            self.toggleVisibilityAction.setEnabled(False)
+            self.saveCurrentFilterAction.setEnabled(False)
+            self.predicateButton.setEnabled(False)
+            self.layerExceptionsAction.setEnabled(False)
         else:
             self.predicateButton.setCurrentPredicateAction(filterDef.predicate)
             self.predicateButton.setCurrentBboxAction(filterDef.bbox)
+            self.removeFilterAction.setEnabled(True)
+            self.labelFilterName.setEnabled(True)
+            self.toggleVisibilityAction.setEnabled(True)
+            self.saveCurrentFilterAction.setEnabled(True)
+            self.predicateButton.setEnabled(True)
+            self.layerExceptionsAction.setEnabled(True)
         self.changeDisplayedName(filterDef)
         self.onShowGeom(self.showGeomStatus)
 
