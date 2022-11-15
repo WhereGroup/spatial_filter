@@ -88,7 +88,7 @@ class FilterDefinition:
 
     @property
     def isValid(self) -> bool:
-        return all([self.wkt, self.crs.isValid(), self.predicate])
+        return all([self.geometry.isGeosValid(), self.crs.isValid(), self.predicate])
 
     @property
     def isSaved(self) -> bool:
