@@ -35,7 +35,7 @@ from .maptool import PolygonTool
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
-from .filters import Predicate, FilterManager, FilterDefinition
+from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition
 
 
 class ExtentDialog(QDialog):
@@ -153,7 +153,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.buttonDelete.setEnabled(hasSelection)
 
     def onApplyClicked(self):
-        if not self.controller.currentFilter.isSaved and not FilterManager().askApply():
+        if not self.controller.currentFilter.isSaved and not askApply():
             return
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
@@ -165,7 +165,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
     def onDeleteClicked(self):
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
-        FilterManager().deleteFilterDefinition(filterDefinition)
+        deleteFilterDefinition(filterDefinition)
         self.setModel()
         self.controller.refreshFilter()
 
@@ -180,17 +180,24 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
 
 
 class PredicateButton(QPushButton):
+    MENU_WIDTH = 250
+
     predicateChanged = pyqtSignal(Predicate)
     bboxChanged = pyqtSignal(bool)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
+        predicateActionNames = {
+            Predicate.INTERSECTS: self.tr('intersects'),
+            Predicate.WITHIN: self.tr('within'),
+            Predicate.DISJOINT: self.tr('disjoint'),
+        }
         self.setObjectName('mPredicateSelectAction')
         self.setToolTip(self.tr('Geometric predicate'))
         self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
         self.menu = QMenu(parent=parent)
 
-        self.menu.addSection(self.tr('Geometric Predicate'))
+        self.sectionPredicates = self.menu.addSection(self.tr('Geometric Predicate'))
         self.predicateActionGroup = QActionGroup(self)
         self.predicateActionGroup.setExclusive(True)
         for predicate in Predicate:
@@ -198,27 +205,24 @@ class PredicateButton(QPushButton):
             action.setCheckable(True)
             if predicate == Predicate.INTERSECTS:
                 action.setChecked(True)
-            action.setText(predicate.name)
+            action.setText(predicateActionNames.get(predicate))
             action.predicate = predicate
             action.triggered.connect(self.onPredicateChanged)
             self.predicateActionGroup.addAction(action)
         self.menu.addActions(self.predicateActionGroup.actions())
-        self.menu.addSeparator()
 
-        self.menu.addSection(self.tr('Object of comparison'))
+        self.sectionComparison = self.menu.addSection(self.tr('Object of comparison'))
         self.bboxActionGroup = QActionGroup(self)
         self.bboxActionGroup.setExclusive(True)
         self.bboxTrueAction = QAction(self.menu)
         self.bboxTrueAction.setCheckable(True)
         self.bboxTrueAction.setText(self.tr('BBOX'))
-        self.bboxTrueAction.setToolTip(self.tr('Compare features to the filters bounding box'))
         self.bboxTrueAction.bbox = True
         self.bboxTrueAction.triggered.connect(self.onBboxChanged)
         self.bboxFalseAction = QAction(self.menu)
         self.bboxFalseAction.setCheckable(True)
         self.bboxFalseAction.setChecked(True)
         self.bboxFalseAction.setText(self.tr('GEOM'))
-        self.bboxFalseAction.setToolTip(self.tr('Compare features to the exact filter geometry'))
         self.bboxFalseAction.bbox = False
         self.bboxFalseAction.triggered.connect(self.onBboxChanged)
 
@@ -226,6 +230,7 @@ class PredicateButton(QPushButton):
         self.bboxActionGroup.addAction(self.bboxFalseAction)
         self.menu.addActions(self.bboxActionGroup.actions())
 
+        self.menu.setMinimumWidth(self.MENU_WIDTH)
         self.setMenu(self.menu)
         self.setFlat(True)
 
