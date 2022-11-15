@@ -173,6 +173,7 @@ class FilterToolbar(QToolBar):
         super().__init__(parent=parent)
         self.controller = controller
         self.showGeomStatus = False
+        self.symbol = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -290,8 +291,10 @@ class FilterToolbar(QToolBar):
 
     def onFilteStyleChanged(self):
 
+        self.symbol = self.styleFilterAction.clone()
         if self.showGeomStatus:
-            self.drawFilterGeom(self.styleFilterAction.symbol())
+            self.removeFilterGeom()
+            self.drawFilterGeom()
 
     def onShowGeom(self, checked: bool):
 
@@ -300,7 +303,7 @@ class FilterToolbar(QToolBar):
         if checked:
             tooltip = self.tr('Hide filter geometry')
             self.removeFilterGeom()
-            self.drawFilterGeom(self.styleFilterAction.symbol())
+            self.drawFilterGeom()
 
         else:
             tooltip = self.tr('Show filter geometry')
@@ -308,7 +311,7 @@ class FilterToolbar(QToolBar):
 
         self.toggleVisibilityAction.setToolTip(tooltip)
 
-    def drawFilterGeom(self, filterSymbol: QgsSymbol):
+    def drawFilterGeom(self):
         """Get filterRubberBand geometry, transform it and show it on canvas"""
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterWkt = self.controller.currentFilter.wkt
@@ -318,7 +321,7 @@ class FilterToolbar(QToolBar):
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())
         filterGeom.transform(filterProj)
         filterRubberBand.setToGeometry(filterGeom, None)
-        filterRubberBand.setSymbol(filterSymbol)
+        filterRubberBand.setSymbol(self.symbol)
         # Append to global variable
         self.controller.rubberBands.append(filterRubberBand)
 
