@@ -4,11 +4,13 @@ qgisMinimumVersion=3.0
 description=Global filters for PostGIS layers
 description[de]=Globale Filter für PostGIS Layer
 version=0.1
-author=HVBG / Wheregroup GmbH
+author=Wheregroup GmbH
 email=welche@mail.hier
 
-about=Create and manage spatial filters that are applied to PostGIS vector layers in the current project. It allows for the limited viewing and editing of the layer by a polygon geometry or its bounding box. It is possible to define exceptions for layers and display the filter geometry.
-about[de]=Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS Layer im aktuellen Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine bestimmte Polygongeometrie oder deren minimalumfassended Rechteck begrenzen. Es ist möglich Ausnahmen für Layer zu definieren und die Filtergeometry anzuzeigen.
+about=Create and manage spatial filters that are applied to PostGIS vector layers in the current QGIS project. It allows for the limited viewing and editing of the layer by a polygon geometry or its bounding box. It is possible to define exceptions for single layers and display the filter geometry.
+The development of this plugin was funded by the Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG).
+about[de]=Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS Layer im aktuellen QGIS Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine festgelegt Polygongeometrie oder deren minimal umfassendes Rechteck begrenzen. Es ist möglich Ausnahmen für einzelne Layer zu definieren und die Filtergeometrie anzuzeigen.
+Die Entwicklung dieses Plugins wurde von der Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG) finanziert.
 
 tracker=http://bugs
 repository=http://repo
