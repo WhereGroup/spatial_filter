@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum, IntEnum
-from typing import List, Optional
+from typing import List
 
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
@@ -93,6 +92,9 @@ class FilterDefinition:
     @property
     def isSaved(self) -> bool:
         return self.storageString == readSettingsValue(self.name)
+
+    def copy(self):
+        return replace(self)
 
 
 def loadFilterDefinition(name: str) -> FilterDefinition:

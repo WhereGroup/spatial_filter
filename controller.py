@@ -1,11 +1,11 @@
 from typing import Iterable, Optional, List
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry, QgsCoordinateReferenceSystem
+from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
 from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
-from .filters import FilterDefinition, Predicate, saveFilterDefinition
+from .filters import FilterDefinition, Predicate
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
@@ -79,22 +79,15 @@ class FilterController(QObject):
         self.refreshFilter()
 
     def setFilterPredicate(self, predicate: Predicate):
-        self.initFilter()
         self.currentFilter.predicate = predicate.value
         self.refreshFilter()
 
     def setFilterBbox(self, bbox: bool):
-        self.initFilter()
         self.currentFilter.bbox = bbox
         self.refreshFilter()
 
-    def saveCurrentFilter(self):
-        saveFilterDefinition(self.currentFilter)
-        self.refreshFilter()
-
     def initFilter(self):
-        if not self.currentFilter:
-            self.currentFilter = FilterDefinition.defaultFilter()
+        self.currentFilter = FilterDefinition.defaultFilter()
 
     def hasValidFilter(self):
         return self.currentFilter and self.currentFilter.isValid

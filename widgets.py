@@ -1,11 +1,10 @@
 import os
-from dataclasses import replace
 
 from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QPixmap, QColor
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -19,7 +18,6 @@ from PyQt5.QtWidgets import (
 )
 from qgis.gui import QgsExtentWidget, QgsRubberBand
 from qgis.core import (
-    QgsMessageLog,
     Qgis,
     QgsApplication,
     QgsGeometry,
@@ -35,7 +33,7 @@ from .maptool import PolygonTool
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
-from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition
+from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition, saveFilterDefinition
 
 
 class ExtentDialog(QDialog):
@@ -158,7 +156,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
             return
         selectedIndex = self.listViewNamedFilters.selectedIndexes()[0]
         filterDefinition = self.filterModel.data(index=selectedIndex, role=DataRole)
-        filterDefinitionCopy = replace(filterDefinition)
+        filterDefinitionCopy = filterDefinition.copy()
         self.lineEditActiveFilter.setText(filterDefinitionCopy.name)
         self.controller.currentFilter = filterDefinitionCopy
         self.controller.refreshFilter()
@@ -171,13 +169,16 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.controller.refreshFilter()
 
     def onNameClicked(self):
+        if not self.controller.hasValidFilter():
+            return
         currentText = self.lineEditActiveFilter.text()
         text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal, text=currentText)
         if not ok:
             return
-        self.lineEditActiveFilter.setText(text)
-        self.controller.initFilter()
-        self.controller.currentFilter.name = text
+        namedFilter = self.controller.currentFilter.copy()
+        namedFilter.name = text
+        saveFilterDefinition(namedFilter)
+        self.setModel()
         self.controller.refreshFilter()
 
 
@@ -329,11 +330,6 @@ class FilterToolbar(QToolBar):
         self.layerExceptionsAction.setToolTip(self.tr('Exclude layers from filter'))
         self.addAction(self.layerExceptionsAction)
 
-        self.saveCurrentFilterAction = QAction(self)
-        self.saveCurrentFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionFileSave.svg'))
-        self.saveCurrentFilterAction.setToolTip(self.tr('Save current filter'))
-        self.addAction(self.saveCurrentFilterAction)
-
         self.manageFiltersAction = QAction(self)
         self.manageFiltersAction.setIcon(QgsApplication.getThemeIcon('/mActionFileOpen.svg'))
         self.manageFiltersAction.setToolTip(self.tr('Manage filters'))
@@ -344,7 +340,6 @@ class FilterToolbar(QToolBar):
         self.filterFromExtentAction.triggered.connect(self.startFilterFromExtentDialog)
         self.layerExceptionsAction.triggered.connect(self.startLayerExceptionsDialog)
         self.manageFiltersAction.triggered.connect(self.startManageFiltersDialog)
-        self.saveCurrentFilterAction.triggered.connect(self.controller.saveCurrentFilter)
         self.predicateButton.predicateChanged.connect(self.controller.setFilterPredicate)
         self.predicateButton.bboxChanged.connect(self.controller.setFilterBbox)
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
@@ -362,7 +357,6 @@ class FilterToolbar(QToolBar):
             self.removeFilterAction.setEnabled(False)
             self.labelFilterName.setEnabled(False)
             self.toggleVisibilityAction.setEnabled(False)
-            self.saveCurrentFilterAction.setEnabled(False)
             self.predicateButton.setEnabled(False)
             self.layerExceptionsAction.setEnabled(False)
         else:
@@ -371,7 +365,6 @@ class FilterToolbar(QToolBar):
             self.removeFilterAction.setEnabled(True)
             self.labelFilterName.setEnabled(True)
             self.toggleVisibilityAction.setEnabled(True)
-            self.saveCurrentFilterAction.setEnabled(True)
             self.predicateButton.setEnabled(True)
             self.layerExceptionsAction.setEnabled(True)
         self.changeDisplayedName(filterDef)
@@ -451,6 +444,7 @@ class FilterToolbar(QToolBar):
             iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
             return
         self.controller.initFilter()
+        self.controller.currentFilter.name = self.tr('New filter from sketch')
         self.controller.currentFilter.wkt = geometry.asWkt()
         self.controller.currentFilter.crs = QgsProject.instance().crs()
         self.controller.refreshFilter()
