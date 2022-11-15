@@ -1,10 +1,11 @@
 from typing import Iterable, Optional, List
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
+from qgis.core import Qgis, QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
 from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
+from .maptool import PolygonTool
 from .filters import FilterDefinition, Predicate
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
@@ -73,7 +74,7 @@ class FilterController(QObject):
             return
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
-
+        self.initFilter()
         self.currentFilter.crs = crs
         self.currentFilter.wkt = geom.asWkt()
         self.refreshFilter()
@@ -91,3 +92,22 @@ class FilterController(QObject):
 
     def hasValidFilter(self):
         return self.currentFilter and self.currentFilter.isValid
+
+    def startSketchingTool(self):
+        self.mapTool = PolygonTool()
+        self.mapTool.sketchFinished.connect(self.onSketchFinished)
+        iface.mapCanvas().setMapTool(self.mapTool)
+
+    def stopSketchingTool(self):
+        iface.mapCanvas().unsetMapTool(self.mapTool)
+        self.mapTool.deactivate()
+
+    def onSketchFinished(self, geometry: QgsGeometry):
+        self.stopSketchingTool()
+        if not geometry.isGeosValid():
+            iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
+            return
+        self.initFilter()
+        self.currentFilter.wkt = geometry.asWkt()
+        self.currentFilter.crs = QgsProject.instance().crs()
+        self.refreshFilter()

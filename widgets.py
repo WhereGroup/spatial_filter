@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import (
 )
 from qgis.gui import QgsExtentWidget, QgsRubberBand
 from qgis.core import (
-    Qgis,
     QgsApplication,
     QgsGeometry,
     QgsProject,
@@ -29,7 +28,6 @@ from qgis.core import (
 )
 from qgis.utils import iface
 
-from .maptool import PolygonTool
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
@@ -345,7 +343,7 @@ class FilterToolbar(QToolBar):
         self.filterFromSelectionAction.triggered.connect(self.controller.setFilterFromSelection)
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
-        self.sketchingToolAction.triggered.connect(self.startSketchingTool)
+        self.sketchingToolAction.triggered.connect(self.controller.startSketchingTool)
 
     def onRemoveFilterClicked(self):
         self.controller.removeFilter()
@@ -373,10 +371,10 @@ class FilterToolbar(QToolBar):
     def changeDisplayedName(self, filterDef: FilterDefinition):
         if filterDef and filterDef.isValid:
             self.labelFilterName.setText(filterDef.name)
-            self.setItalicName(not filterDef.isSaved)
+            # self.setItalicName(not filterDef.isSaved)
         else:
             self.labelFilterName.setText(self.tr("No filter geometry set"))
-            self.setItalicName(True)
+            # self.setItalicName(True)
 
     def setItalicName(self, italic: bool):
         font = self.labelFilterName.font()
@@ -428,23 +426,3 @@ class FilterToolbar(QToolBar):
         while self.controller.rubberBands:
             rubberBand = self.controller.rubberBands.pop()
             iface.mapCanvas().scene().removeItem(rubberBand)
-
-    def startSketchingTool(self):
-        self.mapTool = PolygonTool()
-        self.mapTool.sketchFinished.connect(self.onSketchFinished)
-        iface.mapCanvas().setMapTool(self.mapTool)
-
-    def stopSketchingTool(self):
-        iface.mapCanvas().unsetMapTool(self.mapTool)
-        self.mapTool.deactivate()
-
-    def onSketchFinished(self, geometry: QgsGeometry):
-        self.stopSketchingTool()
-        if not geometry.isGeosValid():
-            iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
-            return
-        self.controller.initFilter()
-        self.controller.currentFilter.name = self.tr('New filter from sketch')
-        self.controller.currentFilter.wkt = geometry.asWkt()
-        self.controller.currentFilter.crs = QgsProject.instance().crs()
-        self.controller.refreshFilter()
