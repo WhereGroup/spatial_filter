@@ -23,6 +23,7 @@ class FilterDefinition:
     wkt: str
     crs: QgsCoordinateReferenceSystem
     predicate: int
+    bbox: bool
 
     def __post_init__(self):
         self.predicate = int(self.predicate)
@@ -43,19 +44,25 @@ class FilterDefinition:
         Returns:
             str: A layer filter string
         """
+        template = "{spatial_predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"
 
         # ST_DISJOINT does not use spatial indexes, but we can use its opposite "NOT ST_INTERSECTS" which does
+        spatial_predicate = f"ST_{Predicate(self.predicate).name}"
         if self.predicate == Predicate.DISJOINT:
             spatial_predicate = "NOT ST_INTERSECTS"
-        else:
-            spatial_predicate = f"ST_{Predicate(self.predicate).name}"
 
-        template = "{spatial_predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"
+
+        wkt = self.wkt
+        if self.bbox:
+            rect = QgsGeometry.fromWkt(self.wkt).boundingBox()
+            wkt = QgsGeometry.fromRect(rect).asWkt()
+
+
         geom_name = getLayerGeomName(layer)
         return template.format(
             spatial_predicate=spatial_predicate,
             geom_name=geom_name,
-            wkt=self.wkt,
+            wkt=wkt,
             srid=self.crs.postgisSrid(),
             layer_srid=layer.crs().postgisSrid()
         )
@@ -66,15 +73,16 @@ class FilterDefinition:
 
         For the CRS just the Auth ID is stored, e.g. EPSG:1234 or PROJ:9876.
         """
-        return SPLIT_STRING.join([self.name, self.wkt, self.crs.authid(), str(self.predicate)])
+        return SPLIT_STRING.join([self.name, self.wkt, self.crs.authid(), str(self.predicate), str(self.bbox)])
 
     @staticmethod
     def fromStorageString(value: str) -> 'FilterDefinition':
         parameters = value.split(SPLIT_STRING)
-        assert len(parameters) == 4, "Malformed FilterDefinition loaded from settings: {value}"
-        name, wkt, crs_auth_id, predicate = parameters
+        assert len(parameters) == 5, "Malformed FilterDefinition loaded from settings: {value}"
+        name, wkt, crs_auth_id, predicate, bbox_str = parameters
         crs = QgsCoordinateReferenceSystem(crs_auth_id)
-        return FilterDefinition(name, wkt, crs, predicate)
+        bbox = bool(bbox_str == 'True')
+        return FilterDefinition(name, wkt, crs, predicate, bbox)
 
     @property
     def isValid(self) -> bool:
