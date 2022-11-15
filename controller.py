@@ -5,7 +5,7 @@ from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, Qgs
 from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
-from .filters import FilterDefinition, Predicate, FilterManager
+from .filters import FilterDefinition, Predicate, saveFilterDefinition
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
@@ -93,5 +93,5 @@ class FilterController(QObject):
         self.refreshFilter()
 
     def saveCurrentFilter(self):
-        FilterManager().saveFilterDefinition(self.currentFilter)
+        saveFilterDefinition(self.currentFilter)
         self.refreshFilter()

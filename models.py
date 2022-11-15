@@ -5,9 +5,9 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from qgis.core import QgsMessageLog, Qgis, QgsProject,  QgsFeatureSource, QgsApplication
 
+from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException
 from .settings import SUPPORTED_PROVIDERS
-from .filters import FilterManager
 
 
 DataRole = Qt.UserRole + 1
@@ -17,7 +17,7 @@ class FilterModel(QAbstractListModel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.filters = FilterManager.loadAllFilterDefinitions()
+        self.filters = loadAllFilterDefinitions()
         self.filters.sort()
         QgsMessageLog.logMessage(f"{len(self.filters)} filter definitions loaded.", "FilterPlugin", level=Qgis.Info)
 

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
-from .helpers import saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName
+from .helpers import tr, saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName
 from .settings import SPLIT_STRING
 
 
@@ -93,47 +93,47 @@ class FilterDefinition:
         return self.storageString == readSettingsValue(self.name)
 
 
-class FilterManager(QObject):
-    def __init__(self, parent: Optional[QObject] = None) -> None:
-        super().__init__(parent=parent)
+def loadFilterDefinition(name: str) -> FilterDefinition:
+    return FilterDefinition.fromStorageString(readSettingsValue(name))
 
-    @staticmethod
-    def loadFilterDefinition(name: str) -> FilterDefinition:
-        return FilterDefinition.fromStorageString(readSettingsValue(name))
 
-    @staticmethod
-    def loadAllFilterDefinitions() -> List[FilterDefinition]:
-        return [FilterDefinition.fromStorageString(value) for value in allSettingsValues()]
+def loadAllFilterDefinitions() -> List[FilterDefinition]:
+    return [FilterDefinition.fromStorageString(value) for value in allSettingsValues()]
 
-    def saveFilterDefinition(self, filterDef: FilterDefinition) -> None:
-        if not filterDef.isValid:
-            iface.messageBar().pushInfo("", self.tr("Current filter definition is not valid"))
+
+def saveFilterDefinition(filterDef: FilterDefinition) -> None:
+    if not filterDef.isValid:
+        iface.messageBar().pushInfo("", tr("Current filter definition is not valid"))
+        return
+    if not filterDef.name:
+        iface.messageBar().pushInfo("", tr("Please provide a name for the filter"))
+        return
+    if filterDef.isSaved:
+        return
+    if readSettingsValue(filterDef.name):
+        if not askOverwrite(filterDef.name):
             return
-        if not filterDef.name:
-            iface.messageBar().pushInfo("", self.tr("Please provide a name for the filter"))
-            return
-        if filterDef.isSaved:
-            return
-        if readSettingsValue(filterDef.name):
-            if not self.askOverwrite(filterDef.name):
-                return
-        saveSettingsValue(filterDef.name, filterDef.storageString)
+    saveSettingsValue(filterDef.name, filterDef.storageString)
 
-    def deleteFilterDefinition(self, filterDef: FilterDefinition) -> None:
-        if self.askDelete(filterDef.name):
-            removeSettingsValue(filterDef.name)
 
-    def askApply(self) -> bool:
-        txt = self.tr('Current settings will be lost. Apply anyway?')
-        return QMessageBox.question(iface.mainWindow(), self.tr('Continue?'), txt,
-                                    QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+def deleteFilterDefinition(filterDef: FilterDefinition) -> None:
+    if askDelete(filterDef.name):
+        removeSettingsValue(filterDef.name)
 
-    def askOverwrite(self, name: str) -> bool:
-        txt = self.tr('Overwrite settings for filter')
-        return QMessageBox.question(iface.mainWindow(), self.tr('Overwrite?'), f'{txt} <i>{name}</i>?',
-                                    QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
 
-    def askDelete(self, name: str) -> bool:
-        txt = self.tr('Delete filter')
-        return QMessageBox.question(iface.mainWindow(), self.tr('Delete?'), f'{txt} <i>{name}</i>?',
-                                    QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+def askApply(self) -> bool:
+    txt = tr('Current settings will be lost. Apply anyway?')
+    return QMessageBox.question(iface.mainWindow(), tr('Continue?'), txt,
+                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+
+
+def askOverwrite(name: str) -> bool:
+    txt = tr('Overwrite settings for filter')
+    return QMessageBox.question(iface.mainWindow(), tr('Overwrite?'), f'{txt} <i>{name}</i>?',
+                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+
+
+def askDelete(name: str) -> bool:
+    txt = tr('Delete filter')
+    return QMessageBox.question(iface.mainWindow(), tr('Delete?'), f'{txt} <i>{name}</i>?',
+                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
