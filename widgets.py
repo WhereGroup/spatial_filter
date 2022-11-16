@@ -26,7 +26,7 @@ from qgis.utils import iface
 from .controller import FilterController
 from .models import FilterModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
-from .settings import GROUP
+from .settings import GROUP, FILTER_FILL_COLOR, FILTER_OUTLINE_COLOR, FILTER_OPACITY
 
 
 class ExtentDialog(QDialog):
@@ -174,8 +174,8 @@ class FilterToolbar(QToolBar):
         super().__init__(parent=parent)
         self.controller = controller
         self.showGeomStatus = False
-        self.symbol = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
-        self.symbol.setOpacity(0.5)
+        self.symbol = QgsFillSymbol.createSimple({'color': FILTER_FILL_COLOR, 'outline_color': FILTER_OUTLINE_COLOR})
+        self.symbol.setOpacity(FILTER_OPACITY)
         self.loadFilterSyle()
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
@@ -347,8 +347,8 @@ class FilterToolbar(QToolBar):
         """Lad setting for filter style from profile settings"""
 
         settings = QgsSettings()
-        opacity = settings.value(GROUP + "/SymbolOpacity", 0.5)
-        color = settings.value(GROUP + "/SymbolColor", "#880000ff")
+        opacity = settings.value(GROUP + "/SymbolOpacity", FILTER_OPACITY)
+        color = settings.value(GROUP + "/SymbolColor", FILTER_FILL_COLOR)
         self.symbol.setOpacity(float(opacity))
         self.symbol.setColor(QColor(color))
 
