@@ -174,6 +174,7 @@ class FilterToolbar(QToolBar):
         self.controller = controller
         self.showGeomStatus = False
         self.symbol = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
+        self.symbol.setOpacity(0.5)
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -213,10 +214,8 @@ class FilterToolbar(QToolBar):
         self.styleFilterAction = QgsSymbolButton(self, self.tr('Filter style'))
         self.styleFilterAction.setMinimumWidth(50)
         self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
-        defaultFilterStyle = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
-        defaultFilterStyle.setOpacity(0.5)
-        self.styleFilterAction.setSymbol(defaultFilterStyle)
-
+        self.styleFilterAction.setSymbol(self.symbol.clone())
+        self.styleFilterAction.setDialogTitle(self.tr('Style Filter'))
 
         self.addWidget(self.styleFilterAction)
 
@@ -290,8 +289,9 @@ class FilterToolbar(QToolBar):
         dlg.exec()
 
     def onFilteStyleChanged(self):
+        # Always use clone to assign symbols, otherwise QGIS will crash
+        self.symbol = self.styleFilterAction.symbol().clone()
 
-        self.symbol = self.styleFilterAction.clone()
         if self.showGeomStatus:
             self.removeFilterGeom()
             self.drawFilterGeom()
@@ -321,7 +321,7 @@ class FilterToolbar(QToolBar):
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())
         filterGeom.transform(filterProj)
         filterRubberBand.setToGeometry(filterGeom, None)
-        filterRubberBand.setSymbol(self.symbol)
+        filterRubberBand.setSymbol(self.symbol.clone())
         # Append to global variable
         self.controller.rubberBands.append(filterRubberBand)
 
