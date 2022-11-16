@@ -23,7 +23,7 @@ General Public License v2
 
 ### Entwicklung
 
-[WhereGroup](https://wheregroup.com/) Bonn 2022: Peter Gipper, Johannes Kröger, Mathias Gröbe
+[WhereGroup](https://wheregroup.com/): Peter Gipper, Mathias Gröbe, Johannes Kröger
 
 ### Beitragen
 Bitte Information in der [CONTRIBUTE.md](CONTRIBUTE.md) beachten.
@@ -50,7 +50,7 @@ General Public License v2
 
 ### Development
 
-[WhereGroup](https://wheregroup.com/) Bonn 2022: Peter Gipper, Johannes Kröger, Mathias Gröbe
+[WhereGroup](https://wheregroup.com/): Peter Gipper, Mathias Gröbe, Johannes Kröger
 
 ### Contribute
 
