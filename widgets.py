@@ -380,15 +380,8 @@ class FilterToolbar(QToolBar):
     def changeDisplayedName(self, filterDef: FilterDefinition):
         if filterDef and filterDef.isValid:
             self.labelFilterName.setText(filterDef.name)
-            # self.setItalicName(not filterDef.isSaved)
         else:
             self.labelFilterName.setText(self.tr("No filter geometry set"))
-            # self.setItalicName(True)
-
-    def setItalicName(self, italic: bool):
-        font = self.labelFilterName.font()
-        font.setItalic(italic)
-        self.labelFilterName.setFont(font)
 
     def startFilterFromExtentDialog(self):
         dlg = ExtentDialog(self.controller, parent=self)
@@ -428,7 +421,7 @@ class FilterToolbar(QToolBar):
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterGeom = self.controller.currentFilter.geometry
         if self.controller.currentFilter.bbox:
-            filterGeom = QgsGeometry.fromRect(filterGeom.boundingBox())
+            filterGeom = self.controller.currentFilter.boxGeometry
         filterCrs = self.controller.currentFilter.crs
         projectCrs = QgsCoordinateReferenceSystem(QgsProject.instance().crs())
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())

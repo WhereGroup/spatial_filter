@@ -49,4 +49,5 @@ class MapFilter:
     def unload(self):
         self.toolbar.hideFilterGeom()
         self.toolbar.controller.removeFilter()
+        self.toolbar.controller.disconnectSignals()
         self.toolbar.deleteLater()
