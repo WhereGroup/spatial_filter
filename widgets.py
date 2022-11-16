@@ -120,7 +120,7 @@ FORM_CLASS, _ = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'na
 class ManageFiltersDialog(QDialog, FORM_CLASS):
     lineEditActiveFilter: QLineEdit
     listViewNamedFilters: QListWidget
-    buttonName: QPushButton
+    buttonSave: QPushButton
     buttonApply: QPushButton
     buttonDelete: QPushButton
     buttonClose: QPushButton
@@ -130,12 +130,11 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.controller = controller
         self.setupUi(self)
         self.lineEditActiveFilter.setText(self.controller.currentFilter.name if self.controller.currentFilter else '')
-        self.lineEditActiveFilter.setReadOnly(True)
         self.setupConnections()
         self.setModel()
 
     def setupConnections(self):
-        self.buttonName.clicked.connect(self.onNameClicked)
+        self.buttonSave.clicked.connect(self.onSaveClicked)
         self.buttonApply.clicked.connect(self.onApplyClicked)
         self.buttonDelete.clicked.connect(self.onDeleteClicked)
 
@@ -167,13 +166,10 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.setModel()
         self.controller.refreshFilter()
 
-    def onNameClicked(self):
+    def onSaveClicked(self):
         if not self.controller.hasValidFilter():
             return
-        currentText = self.lineEditActiveFilter.text()
-        text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal, text=currentText)
-        if not ok:
-            return
+        text = self.lineEditActiveFilter.text()
         namedFilter = self.controller.currentFilter.copy()
         namedFilter.name = text
         saveFilterDefinition(namedFilter)
