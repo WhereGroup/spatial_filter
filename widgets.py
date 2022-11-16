@@ -28,7 +28,7 @@ from .helpers import removeFilterFromLayer, setLayerException, hasLayerException
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
 from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition, saveFilterDefinition
-from .settings import GROUP, FILTER_FILL_COLOR, FILTER_OUTLINE_COLOR, FILTER_OPACITY
+from .settings import GROUP_SYMBOLS, FILTER_FILL_COLOR, FILTER_OUTLINE_COLOR, FILTER_OPACITY
 
 
 class ExtentDialog(QDialog):
@@ -164,7 +164,7 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.controller.refreshFilter()
 
 
-    def onNameClicked(self):
+    def onSaveClicked(self):
         currentText = self.lineEditActiveFilter.text()
         text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal,
                                         text=currentText)
@@ -449,16 +449,16 @@ class FilterToolbar(QToolBar):
 
         symbol = self.symbol.clone()
         settings = QgsSettings()
-        settings.setValue(GROUP + "/SymbolColor", symbol.color().name(0))
-        settings.setValue(GROUP + "/SymbolOpacity", symbol.opacity())
+        settings.setValue(GROUP_SYMBOLS + "/SymbolColor", symbol.color().name(0))
+        settings.setValue(GROUP_SYMBOLS + "/SymbolOpacity", symbol.opacity())
 
 
     def loadFilterSyle(self):
         """Lad setting for filter style from profile settings"""
 
         settings = QgsSettings()
-        opacity = settings.value(GROUP + "/SymbolOpacity", FILTER_OPACITY)
-        color = settings.value(GROUP + "/SymbolColor", FILTER_FILL_COLOR)
+        opacity = settings.value(GROUP_SYMBOLS + "/SymbolOpacity", FILTER_OPACITY)
+        color = settings.value(GROUP_SYMBOLS + "/SymbolColor", FILTER_FILL_COLOR)
         self.symbol.setOpacity(float(opacity))
         self.symbol.setColor(QColor(color))
 

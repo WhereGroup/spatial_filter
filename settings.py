@@ -1,4 +1,5 @@
 GROUP = 'MapFilter'  # The section name for filter definitions stored in QSettings
+GROUP_SYMBOLS = 'MapFilterSymbols' # Section to store symbols settings
 LAYER_EXCEPTION_VARIABLE = 'MapFilterException'
 SPLIT_STRING = '#!#!#'  # String used to split filter definition parameters in QSettings
 
