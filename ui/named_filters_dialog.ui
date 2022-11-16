@@ -31,9 +31,9 @@
     <widget class="QLineEdit" name="lineEditActiveFilter"/>
    </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="buttonName">
+    <widget class="QPushButton" name="buttonSave">
      <property name="text">
-      <string>Name...</string>
+      <string>Save</string>
      </property>
     </widget>
    </item>
