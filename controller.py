@@ -7,7 +7,7 @@ from qgis.utils import iface
 
 from .maptool import PolygonTool
 from .filters import FilterDefinition, Predicate
-from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
+from .helpers import getSupportedLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 
@@ -21,32 +21,39 @@ class FilterController(QObject):
         super().__init__(parent=parent)
         self.currentFilter = None
         self.rubberBands = []
+        self.connectSignals()
 
-    def removeFilter(self) -> None:
+    def connectSignals(self):
+        QgsProject.instance().layersAdded.connect(self.onLayersAdded)
+
+    def disconnectSignals(self):
+        QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
+
+    def removeFilter(self):
         self.currentFilter = None
         self.refreshFilter()
 
-    def updateConnectionProjectLayersAdded(self):
-        self.disconnectProjectLayersAdded()
-        if self.hasValidFilter():
-            QgsProject.instance().layersAdded.connect(self.onLayersAdded)
-
-    def disconnectProjectLayersAdded(self):
-        try:
-            QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
-        except TypeError:
-            pass
-
     def onLayersAdded(self, layers: Iterable[QgsMapLayer]):
-        if not self.currentFilter.isValid:
-            return
-        for layer in getPostgisLayers(layers):
-            filterCondition = self.currentFilter.filterString(layer)
-            filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
-            layer.setSubsetString(filterString)
+        if self.hasValidFilter():
+            # Apply the filter to added layers or loaded project
+            for layer in getSupportedLayers(layers):
+                filterCondition = self.currentFilter.filterString(layer)
+                filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
+                layer.setSubsetString(filterString)
+        else:
+            # Look for saved filters to use with the plugin (possible when project was loaded)
+            for layer in getSupportedLayers(layers):
+                if FILTER_COMMENT_START in layer.subsetString():
+                    self.setFilterFromLayer(layer)
+                    return
+
+    def setFilterFromLayer(self, layer):
+        filterDefinition = FilterDefinition.fromFilterString(layer.subsetString())
+        self.currentFilter = filterDefinition
+        self.refreshFilter()
 
     def updateLayerFilters(self):
-        for layer in getPostgisLayers(QgsProject.instance().mapLayers().values()):
+        for layer in getSupportedLayers(QgsProject.instance().mapLayers().values()):
             if self.hasValidFilter() and not hasLayerException(layer):
                 addFilterToLayer(layer, self.currentFilter)
             else:
@@ -54,7 +61,6 @@ class FilterController(QObject):
         refreshLayerTree()
 
     def updateProjectLayers(self):
-        self.updateConnectionProjectLayersAdded()
         self.updateLayerFilters()
 
     def refreshFilter(self):

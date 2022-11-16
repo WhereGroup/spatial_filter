@@ -1,9 +1,10 @@
+import re
 from typing import Any, List, Iterable
 
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 
-from .settings import GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
+from .settings import SUPPORTED_PROVIDERS, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
 
 
 def tr(message):
@@ -44,11 +45,11 @@ def refreshLayerTree() -> None:
     pass
 
 
-def getPostgisLayers(layers: Iterable[QgsMapLayer]):
+def getSupportedLayers(layers: Iterable[QgsMapLayer]):
     for layer in layers:
         if layer.type() != QgsMapLayerType.VectorLayer:
             continue
-        if layer.providerType() != 'postgres':
+        if layer.providerType() not in SUPPORTED_PROVIDERS:
             continue
         yield layer
 
@@ -85,12 +86,39 @@ def setLayerException(layer: QgsVectorLayer, exception: bool) -> None:
     QgsExpressionContextUtils.setLayerVariable(layer, LAYER_EXCEPTION_VARIABLE, exception)
 
 
-def getTestFilterDefinition():
-    from .filters import Predicate, FilterDefinition
-    name = 'museumsinsel'
-    srsid = 3452  # 4326
-    predicate = Predicate.INTERSECTS.value
-    wkt = 'Polygon ((13.38780495720708963 52.50770539474106613, 13.41583642354597039 52.50770539474106613, ' \
-          '13.41583642354597039 52.52548910505585411, 13.38780495720708963 52.52548910505585411, ' \
-          '13.38780495720708963 52.50770539474106613))'
-    return FilterDefinition(name, wkt, srsid, predicate)
+def matchFormatString(format_str: str, s: str) -> dict:
+    """Match s against the given format string, return dict of matches.
+
+    We assume all of the arguments in format string are named keyword arguments (i.e. no {} or
+    {:0.2f}). We also assume that all chars are allowed in each keyword argument, so separators
+    need to be present which aren't present in the keyword arguments (i.e. '{one}{two}' won't work
+    reliably as a format string but '{one}-{two}' will if the hyphen isn't used in {one} or {two}).
+
+    We raise if the format string does not match s.
+
+    Example:
+    fs = '{test}-{flight}-{go}'
+    s = fs.format('first', 'second', 'third')
+    match_format_string(fs, s) -> {'test': 'first', 'flight': 'second', 'go': 'third'}
+
+    source: https://stackoverflow.com/questions/10663093/use-python-format-string-in-reverse-for-parsing
+    """
+
+    # First split on any keyword arguments, note that the names of keyword arguments will be in the
+    # 1st, 3rd, ... positions in this list
+    tokens = re.split(r'\{(.*?)\}', format_str)
+    keywords = tokens[1::2]
+
+    # Now replace keyword arguments with named groups matching them. We also escape between keyword
+    # arguments so we support meta-characters there. Re-join tokens to form our regexp pattern
+    tokens[1::2] = map(u'(?P<{}>.*)'.format, keywords)
+    tokens[0::2] = map(re.escape, tokens[0::2])
+    pattern = ''.join(tokens)
+
+    # Use our pattern to match the given string, raise if it doesn't match
+    matches = re.match(pattern, s)
+    if not matches:
+        raise Exception("Format string did not match")
+
+    # Return a dict with all of our keywords and their values
+    return {x: matches.group(x) for x in keywords}
