@@ -1,12 +1,10 @@
-
 import os
-from dataclasses import replace
 
 from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, pyqtSignal, QRect
-from PyQt5.QtGui import QIcon, QPixmap, QColor
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -163,19 +161,14 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.setModel()
         self.controller.refreshFilter()
 
-
     def onSaveClicked(self):
-        currentText = self.lineEditActiveFilter.text()
-        text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal,
-                                        text=currentText)
-        if not ok:
+        if not self.controller.hasValidFilter():
             return
         text = self.lineEditActiveFilter.text()
         namedFilter = self.controller.currentFilter.copy()
         namedFilter.name = text
         saveFilterDefinition(namedFilter)
         self.setModel()
-        self.controller.refreshFilter()
 
 
 class PredicateButton(QPushButton):
@@ -266,6 +259,7 @@ class PredicateButton(QPushButton):
 class FilterToolbar(QToolBar):
     LAYOUT_SPACING = 5
     FILTER_LABEL_WIDTH = 150
+    BUTTON_MIN_WIDTH = 50
 
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
@@ -305,12 +299,12 @@ class FilterToolbar(QToolBar):
         self.toggleVisibilityAction.setToolTip(self.tr('Show filter geometry'))
         self.addAction(self.toggleVisibilityAction)
 
-        self.styleFilterAction = QgsSymbolButton(self, self.tr('Filter style'))
-        self.styleFilterAction.setMinimumWidth(50)
-        self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
-        self.styleFilterAction.setSymbol(self.symbol.clone())
-        self.styleFilterAction.setDialogTitle(self.tr('Style Filter'))
-        self.addWidget(self.styleFilterAction)
+        self.styleFilterButton = QgsSymbolButton(self, self.tr('Filter style'))
+        self.styleFilterButton.setMinimumWidth(self.BUTTON_MIN_WIDTH)
+        self.styleFilterButton.setSymbolType(QgsSymbol.Fill)
+        self.styleFilterButton.setSymbol(self.symbol.clone())
+        self.styleFilterButton.setDialogTitle(self.tr('Style Filter'))
+        self.addWidget(self.styleFilterButton)
 
         self.filterFromExtentAction = QAction(self)
         self.filterFromExtentAction.setIcon(QgsApplication.getThemeIcon('/mActionAddBasicRectangle.svg'))
@@ -352,7 +346,7 @@ class FilterToolbar(QToolBar):
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
         self.sketchingToolAction.triggered.connect(self.controller.startSketchingTool)
-        self.styleFilterAction.changed.connect(self.onFilterStyleChanged)
+        self.styleFilterButton.changed.connect(self.onFilterStyleChanged)
 
     def onRemoveFilterClicked(self):
         self.controller.removeFilter()
@@ -395,28 +389,28 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
-    def onFilterStyleChanged(self):
+    def onFilterStyleChanged(self, *args, **kwargs):
+        print("onFilterStyleChanged")
         # Always use clone to assign symbols, otherwise QGIS will crash
-        self.symbol = self.styleFilterAction.symbol().clone()
+        self.symbol = self.styleFilterButton.symbol().clone()
         self.saveFilterStyle()
 
         if self.showGeomStatus:
             self.hideFilterGeom()
-            self.drawFilterGeom()
+            self.showFilterGeom()
 
     def onShowGeom(self, checked: bool):
         self.showGeomStatus = checked
         if checked and self.controller.currentFilter:
             tooltip = self.tr('Hide filter geometry')
             self.hideFilterGeom()
-            self.drawFilterGeom()
+            self.showFilterGeom()
         else:
             tooltip = self.tr('Show filter geometry')
             self.hideFilterGeom()
         self.toggleVisibilityAction.setToolTip(tooltip)
 
-
-    def drawFilterGeom(self):
+    def showFilterGeom(self):
         """Get filterRubberBand geometry, transform it and show it on canvas"""
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterGeom = self.controller.currentFilter.geometry
@@ -439,16 +433,13 @@ class FilterToolbar(QToolBar):
 
     def saveFilterStyle(self):
         """Save the current style of the filter into the profile settings"""
-
         symbol = self.symbol.clone()
         settings = QgsSettings()
         settings.setValue(GROUP_SYMBOLS + "/SymbolColor", symbol.color().name(0))
         settings.setValue(GROUP_SYMBOLS + "/SymbolOpacity", symbol.opacity())
 
-
     def loadFilterSyle(self):
-        """Lad setting for filter style from profile settings"""
-
+        """Load setting for filter style from profile settings"""
         settings = QgsSettings()
         opacity = settings.value(GROUP_SYMBOLS + "/SymbolOpacity", FILTER_OPACITY)
         color = settings.value(GROUP_SYMBOLS + "/SymbolColor", FILTER_FILL_COLOR)
