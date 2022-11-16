@@ -1,8 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum, IntEnum
-from typing import List, Optional
+from typing import List
 
-from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
@@ -51,12 +50,10 @@ class FilterDefinition:
         if self.predicate == Predicate.DISJOINT:
             spatial_predicate = "NOT ST_INTERSECTS"
 
-
         wkt = self.wkt
         if self.bbox:
             rect = QgsGeometry.fromWkt(self.wkt).boundingBox()
             wkt = QgsGeometry.fromRect(rect).asWkt()
-
 
         geom_name = getLayerGeomName(layer)
         return template.format(
@@ -84,13 +81,20 @@ class FilterDefinition:
         bbox = bool(bbox_str == 'True')
         return FilterDefinition(name, wkt, crs, predicate, bbox)
 
+    @staticmethod
+    def defaultFilter():
+        return FilterDefinition(tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS, False)
+
     @property
     def isValid(self) -> bool:
-        return all([self.wkt, self.crs.isValid(), self.predicate])
+        return all([self.geometry.isGeosValid(), self.crs.isValid(), self.predicate])
 
     @property
     def isSaved(self) -> bool:
         return self.storageString == readSettingsValue(self.name)
+
+    def copy(self):
+        return replace(self)
 
 
 def loadFilterDefinition(name: str) -> FilterDefinition:
@@ -102,6 +106,9 @@ def loadAllFilterDefinitions() -> List[FilterDefinition]:
 
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
+    if not filterDef:
+        iface.messageBar().pushInfo("", tr("No current filter"))
+        return
     if not filterDef.isValid:
         iface.messageBar().pushInfo("", tr("Current filter definition is not valid"))
         return

@@ -47,6 +47,6 @@ class MapFilter:
         self.iface.mainWindow().addToolBar(self.toolbar)
 
     def unload(self):
-        self.toolbar.removeFilterGeom()
-        self.toolbar.controller.onToggled(False)
+        self.toolbar.hideFilterGeom()
+        self.toolbar.controller.removeFilter()
         self.toolbar.deleteLater()

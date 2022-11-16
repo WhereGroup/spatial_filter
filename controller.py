@@ -1,11 +1,12 @@
 from typing import Iterable, Optional, List
 
 from PyQt5.QtCore import pyqtSignal, QObject
-from qgis.core import QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry, QgsCoordinateReferenceSystem
+from qgis.core import Qgis, QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
 from qgis.gui import QgsRubberBand
 from qgis.utils import iface
 
-from .filters import FilterDefinition, Predicate, saveFilterDefinition
+from .maptool import PolygonTool
+from .filters import FilterDefinition, Predicate
 from .helpers import getPostgisLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
@@ -14,25 +15,20 @@ class FilterController(QObject):
     currentFilter: Optional[FilterDefinition]
     rubberBands: Optional[List[QgsRubberBand]]
 
-    filterChanged = pyqtSignal(FilterDefinition)
+    filterChanged = pyqtSignal(object)
 
     def __init__(self, parent: Optional[QObject] = None) -> None:
         super().__init__(parent=parent)
-        self.currentFilter = FilterDefinition(
-            self.tr('New Filter'), '', QgsCoordinateReferenceSystem(), Predicate.INTERSECTS, False
-        )
+        self.currentFilter = None
         self.rubberBands = []
-        self.toolbarIsActive = False
 
-    def onToggled(self, checked: bool) -> None:
-        self.toolbarIsActive = checked
-        if checked and not self.currentFilter.isValid:
-            return
-        self.updateProjectLayers(checked)
+    def removeFilter(self) -> None:
+        self.currentFilter = None
+        self.refreshFilter()
 
-    def updateConnectionProjectLayersAdded(self, checked):
+    def updateConnectionProjectLayersAdded(self):
         self.disconnectProjectLayersAdded()
-        if checked:
+        if self.hasValidFilter():
             QgsProject.instance().layersAdded.connect(self.onLayersAdded)
 
     def disconnectProjectLayersAdded(self):
@@ -49,22 +45,21 @@ class FilterController(QObject):
             filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
             layer.setSubsetString(filterString)
 
-    def updateLayerFilters(self, checked: bool):
+    def updateLayerFilters(self):
         for layer in getPostgisLayers(QgsProject.instance().mapLayers().values()):
-            if checked and not hasLayerException(layer):
+            if self.hasValidFilter() and not hasLayerException(layer):
                 addFilterToLayer(layer, self.currentFilter)
             else:
                 removeFilterFromLayer(layer)
         refreshLayerTree()
 
-    def updateProjectLayers(self, checked):
-        self.updateConnectionProjectLayersAdded(checked)
-        self.updateLayerFilters(checked)
+    def updateProjectLayers(self):
+        self.updateConnectionProjectLayersAdded()
+        self.updateLayerFilters()
 
     def refreshFilter(self):
         self.filterChanged.emit(self.currentFilter)
-        if self.currentFilter.isValid:
-            self.updateProjectLayers(self.toolbarIsActive)
+        self.updateProjectLayers()
 
     def setFilterFromSelection(self):
         layer = iface.activeLayer()
@@ -79,7 +74,7 @@ class FilterController(QObject):
             return
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
-
+        self.initFilter()
         self.currentFilter.crs = crs
         self.currentFilter.wkt = geom.asWkt()
         self.refreshFilter()
@@ -92,6 +87,27 @@ class FilterController(QObject):
         self.currentFilter.bbox = bbox
         self.refreshFilter()
 
-    def saveCurrentFilter(self):
-        saveFilterDefinition(self.currentFilter)
+    def initFilter(self):
+        self.currentFilter = FilterDefinition.defaultFilter()
+
+    def hasValidFilter(self):
+        return self.currentFilter and self.currentFilter.isValid
+
+    def startSketchingTool(self):
+        self.mapTool = PolygonTool()
+        self.mapTool.sketchFinished.connect(self.onSketchFinished)
+        iface.mapCanvas().setMapTool(self.mapTool)
+
+    def stopSketchingTool(self):
+        iface.mapCanvas().unsetMapTool(self.mapTool)
+        self.mapTool.deactivate()
+
+    def onSketchFinished(self, geometry: QgsGeometry):
+        self.stopSketchingTool()
+        if not geometry.isGeosValid():
+            iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
+            return
+        self.initFilter()
+        self.currentFilter.wkt = geometry.asWkt()
+        self.currentFilter.crs = QgsProject.instance().crs()
         self.refreshFilter()

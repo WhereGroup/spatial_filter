@@ -9,32 +9,32 @@
         <translation type="obsolete">Filterwerkzeugleiste</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="106"/>
+        <location filename="../filters.py" line="113"/>
         <source>Current filter definition is not valid</source>
         <translation>Aktuelle Filterdefinition ist ungültig</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="109"/>
+        <location filename="../filters.py" line="116"/>
         <source>Please provide a name for the filter</source>
         <translation>Bitte benennen Sie erst den Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="131"/>
+        <location filename="../filters.py" line="138"/>
         <source>Overwrite settings for filter</source>
         <translation>Einstellungen überschreiben für Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="132"/>
+        <location filename="../filters.py" line="139"/>
         <source>Overwrite?</source>
         <translation>Überschreiben?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="137"/>
+        <location filename="../filters.py" line="144"/>
         <source>Delete filter</source>
         <translation>Filter löschen</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="138"/>
+        <location filename="../filters.py" line="145"/>
         <source>Delete?</source>
         <translation>Löschen?</translation>
     </message>
@@ -99,14 +99,24 @@
         <translation type="obsolete">Keine Features gewählt</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="125"/>
+        <location filename="../filters.py" line="132"/>
         <source>Current settings will be lost. Apply anyway?</source>
         <translation>Aktuelle Einstellungen gehen verloren. Trotzdem anwenden?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="126"/>
+        <location filename="../filters.py" line="133"/>
         <source>Continue?</source>
         <translation>Fortfahren?</translation>
+    </message>
+    <message>
+        <location filename="../filters.py" line="86"/>
+        <source>New Filter</source>
+        <translation>Neuer Filter</translation>
+    </message>
+    <message>
+        <location filename="../filters.py" line="110"/>
+        <source>No current filter</source>
+        <translation>Kein Filter aktiv</translation>
     </message>
 </context>
 <context>
@@ -135,7 +145,7 @@
 <context>
     <name>ExtentDialog</name>
     <message>
-        <location filename="../widgets.py" line="48"/>
+        <location filename="../widgets.py" line="42"/>
         <source>Set rectangular filter geometry</source>
         <translation>Rechteckige Filtergeometrie setzen</translation>
     </message>
@@ -145,17 +155,22 @@
     <message>
         <location filename="../controller.py" line="21"/>
         <source>New Filter</source>
-        <translation>Neuer Filter</translation>
+        <translation type="obsolete">Neuer Filter</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="75"/>
+        <location filename="../controller.py" line="70"/>
         <source>Select a polygon layer</source>
         <translation>Polygonlayer auswählen</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="78"/>
+        <location filename="../controller.py" line="73"/>
         <source>No features selected</source>
         <translation>Keine Features gewählt</translation>
+    </message>
+    <message>
+        <location filename="../controller.py" line="108"/>
+        <source>Geometry is not valid</source>
+        <translation>Geometrie ist ungültig</translation>
     </message>
 </context>
 <context>
@@ -204,12 +219,12 @@
 <context>
     <name>FilterToolbar</name>
     <message>
-        <location filename="../widgets.py" line="314"/>
+        <location filename="../widgets.py" line="309"/>
         <source>Rectangular filter</source>
         <translation>Rechteckiger Filter</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="319"/>
+        <location filename="../widgets.py" line="314"/>
         <source>Filter from selected features</source>
         <translation>Filter aus gewählten Features</translation>
     </message>
@@ -221,10 +236,10 @@
     <message>
         <location filename="../widgets.py" line="338"/>
         <source>Save current filter</source>
-        <translation>Filter speichern</translation>
+        <translation type="obsolete">Filter speichern</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="343"/>
+        <location filename="../widgets.py" line="333"/>
         <source>Manage filters</source>
         <translation>Filter verwalten</translation>
     </message>
@@ -234,50 +249,55 @@
         <translation>Filterwerkzeugleiste</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="405"/>
+        <location filename="../widgets.py" line="403"/>
         <source>Show filter geometry</source>
         <translation>Filtergeometrie anzeigen</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="364"/>
         <source>Activate filter</source>
-        <translation>Filter aktivieren</translation>
+        <translation type="obsolete">Filter aktivieren</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="362"/>
         <source>Deactivate filter</source>
-        <translation>Filter deaktivieren</translation>
+        <translation type="obsolete">Filter deaktivieren</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="378"/>
+        <location filename="../widgets.py" line="376"/>
         <source>No filter geometry set</source>
         <translation>Keine Filtergeometrie gesetzt</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="333"/>
+        <location filename="../widgets.py" line="328"/>
         <source>Exclude layers from filter</source>
         <translation>Ausnahmen festlegen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="401"/>
+        <location filename="../widgets.py" line="399"/>
         <source>Hide filter geometry</source>
         <translation>Filtergeometrie verstecken</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="324"/>
+        <location filename="../widgets.py" line="319"/>
         <source>Draw a filter polygon on the canvas</source>
         <translation>Filter Polygon in der Karte zeichnen</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="444"/>
         <source>Geometry is not valid</source>
-        <translation>Geometrie ist ungültig</translation>
+        <translation type="obsolete">Geometrie ist ungültig</translation>
+    </message>
+    <message>
+        <location filename="../widgets.py" line="287"/>
+        <source>Remove current filter</source>
+        <translation>Filter entfernen</translation>
     </message>
 </context>
 <context>
     <name>LayerExceptionsDialog</name>
     <message>
-        <location filename="../widgets.py" line="83"/>
+        <location filename="../widgets.py" line="78"/>
         <source>Exclude layers from filter</source>
         <translation></translation>
     </message>
@@ -333,12 +353,12 @@
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="176"/>
+        <location filename="../widgets.py" line="173"/>
         <source>Change Name</source>
         <translation>Namen ändern</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="176"/>
+        <location filename="../widgets.py" line="173"/>
         <source>New Name:</source>
         <translation>Neuer Name:</translation>
     </message>
@@ -354,24 +374,24 @@
 <context>
     <name>PredicateButton</name>
     <message>
-        <location filename="../widgets.py" line="198"/>
+        <location filename="../widgets.py" line="197"/>
         <source>Geometric predicate</source>
         <translation>Räumlicher Operator</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="202"/>
+        <location filename="../widgets.py" line="201"/>
         <source>Geometric Predicate</source>
         <translation>Räumlicher Operator</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="217"/>
+        <location filename="../widgets.py" line="215"/>
         <source>Object of comparison</source>
         <translation>Vergleichsobjekt</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="222"/>
+        <location filename="../widgets.py" line="220"/>
         <source>BBOX</source>
-        <translation>MUR</translation>
+        <translation>BBOX</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="219"/>
@@ -379,7 +399,7 @@
         <translation type="obsolete">Vergleiche Features mit Bounding Box des Filters</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="228"/>
+        <location filename="../widgets.py" line="226"/>
         <source>GEOM</source>
         <translation>GEOM</translation>
     </message>
@@ -389,17 +409,17 @@
         <translation type="obsolete">Vergleiche Features mit exakter Filtergeometrie</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="193"/>
+        <location filename="../widgets.py" line="192"/>
         <source>intersects</source>
         <translation>schneidet</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="194"/>
+        <location filename="../widgets.py" line="193"/>
         <source>within</source>
         <translation>innerhalb</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="195"/>
+        <location filename="../widgets.py" line="194"/>
         <source>disjoint</source>
         <translation>disjoint</translation>
     </message>
