@@ -1,10 +1,12 @@
+
 import os
+from dataclasses import replace
 
 from typing import Optional
 
 from PyQt5 import uic
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QColor
+from PyQt5.QtCore import Qt, pyqtSignal, QRect
+from PyQt5.QtGui import QIcon, QPixmap, QColor
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -16,22 +18,17 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog, QTreeView
 )
-from qgis.gui import QgsExtentWidget, QgsRubberBand
-from qgis.core import (
-    QgsApplication,
-    QgsGeometry,
-    QgsProject,
-    QgsCoordinateReferenceSystem,
-    QgsCoordinateTransform,
-    QgsVectorLayer,
-    QgsWkbTypes,
-)
+
+from qgis.gui import QgsExtentWidget, QgsRubberBand, QgsSymbolButton
+from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
+    QgsWkbTypes, QgsSymbol, QgsFillSymbol, QgsSettings, QgsVectorLayer
 from qgis.utils import iface
 
 from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
 from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition, saveFilterDefinition
+from .settings import GROUP_SYMBOLS, FILTER_FILL_COLOR, FILTER_OUTLINE_COLOR, FILTER_OPACITY
 
 
 class ExtentDialog(QDialog):
@@ -166,8 +163,12 @@ class ManageFiltersDialog(QDialog, FORM_CLASS):
         self.setModel()
         self.controller.refreshFilter()
 
+
     def onSaveClicked(self):
-        if not self.controller.hasValidFilter():
+        currentText = self.lineEditActiveFilter.text()
+        text, ok = QInputDialog.getText(self, self.tr('Change Name'), self.tr('New Name:'), echo=QLineEdit.Normal,
+                                        text=currentText)
+        if not ok:
             return
         text = self.lineEditActiveFilter.text()
         namedFilter = self.controller.currentFilter.copy()
@@ -270,6 +271,9 @@ class FilterToolbar(QToolBar):
         super().__init__(parent=parent)
         self.controller = controller
         self.showGeomStatus = False
+        self.symbol = QgsFillSymbol.createSimple({'color': FILTER_FILL_COLOR, 'outline_color': FILTER_OUTLINE_COLOR})
+        self.symbol.setOpacity(FILTER_OPACITY)
+        self.loadFilterSyle()
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -300,6 +304,13 @@ class FilterToolbar(QToolBar):
         self.toggleVisibilityAction.setCheckable(True)
         self.toggleVisibilityAction.setToolTip(self.tr('Show filter geometry'))
         self.addAction(self.toggleVisibilityAction)
+
+        self.styleFilterAction = QgsSymbolButton(self, self.tr('Filter style'))
+        self.styleFilterAction.setMinimumWidth(50)
+        self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
+        self.styleFilterAction.setSymbol(self.symbol.clone())
+        self.styleFilterAction.setDialogTitle(self.tr('Style Filter'))
+        self.addWidget(self.styleFilterAction)
 
         self.filterFromExtentAction = QAction(self)
         self.filterFromExtentAction.setIcon(QgsApplication.getThemeIcon('/mActionAddBasicRectangle.svg'))
@@ -341,6 +352,7 @@ class FilterToolbar(QToolBar):
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
         self.sketchingToolAction.triggered.connect(self.controller.startSketchingTool)
+        self.styleFilterAction.changed.connect(self.onFilterStyleChanged)
 
     def onRemoveFilterClicked(self):
         self.controller.removeFilter()
@@ -383,19 +395,29 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
+    def onFilterStyleChanged(self):
+        # Always use clone to assign symbols, otherwise QGIS will crash
+        self.symbol = self.styleFilterAction.symbol().clone()
+        self.saveFilterStyle()
+
+        if self.showGeomStatus:
+            self.hideFilterGeom()
+            self.drawFilterGeom()
+
     def onShowGeom(self, checked: bool):
         self.showGeomStatus = checked
         if checked and self.controller.currentFilter:
             tooltip = self.tr('Hide filter geometry')
             self.hideFilterGeom()
-            self.showFilterGeom()
+            self.drawFilterGeom()
         else:
             tooltip = self.tr('Show filter geometry')
             self.hideFilterGeom()
         self.toggleVisibilityAction.setToolTip(tooltip)
 
-    def showFilterGeom(self):
-        # Get filterRubberBand geometry, transform it and show it on canvas
+
+    def drawFilterGeom(self):
+        """Get filterRubberBand geometry, transform it and show it on canvas"""
         filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
         filterGeom = self.controller.currentFilter.geometry
         if self.controller.currentFilter.bbox:
@@ -405,9 +427,7 @@ class FilterToolbar(QToolBar):
         filterProj = QgsCoordinateTransform(filterCrs, projectCrs, QgsProject.instance())
         filterGeom.transform(filterProj)
         filterRubberBand.setToGeometry(filterGeom, None)
-        filterRubberBand.setFillColor(QColor(0, 0, 255, 127))
-        filterRubberBand.setStrokeColor(QColor(0, 0, 0))
-        filterRubberBand.setWidth(2)
+        filterRubberBand.setSymbol(self.symbol.clone())
         # Append to global variable
         self.controller.rubberBands.append(filterRubberBand)
 
@@ -416,3 +436,22 @@ class FilterToolbar(QToolBar):
         while self.controller.rubberBands:
             rubberBand = self.controller.rubberBands.pop()
             iface.mapCanvas().scene().removeItem(rubberBand)
+
+    def saveFilterStyle(self):
+        """Save the current style of the filter into the profile settings"""
+
+        symbol = self.symbol.clone()
+        settings = QgsSettings()
+        settings.setValue(GROUP_SYMBOLS + "/SymbolColor", symbol.color().name(0))
+        settings.setValue(GROUP_SYMBOLS + "/SymbolOpacity", symbol.opacity())
+
+
+    def loadFilterSyle(self):
+        """Lad setting for filter style from profile settings"""
+
+        settings = QgsSettings()
+        opacity = settings.value(GROUP_SYMBOLS + "/SymbolOpacity", FILTER_OPACITY)
+        color = settings.value(GROUP_SYMBOLS + "/SymbolColor", FILTER_FILL_COLOR)
+        self.symbol.setOpacity(float(opacity))
+        self.symbol.setColor(QColor(color))
+

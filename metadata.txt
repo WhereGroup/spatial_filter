@@ -1,12 +1,16 @@
 [general]
 name=Map Filter
-qgisMinimumVersion=3.0
-description=This plugin applies global filters.
-version=0.1
-author=HVBG / Wheregroup GmbH
-email=welche@mail.hier
+qgisMinimumVersion=3.22
+description=Spatial filters for PostGIS layers
+description[de]=Räumliche Filter für PostGIS-Layer
+version=0.9
+author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
+email=info@wheregroup.com
 
-about=Create and manage spatial filters that are applied to all vector layers in the current project.
+about=Create and manage spatial filters that are applied to PostGIS vector layers in the current QGIS project. It allows for the limited viewing and editing of the layer by a polygon geometry or its bounding box. It is possible to define exceptions for single layers and display the filter geometry.
+The development of this plugin was funded by the Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG). Development: WhereGroup Bonn 2022
+about[de]=Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS Layer im aktuellen QGIS Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine festgelegt Polygongeometrie oder deren minimal umfassendes Rechteck begrenzen. Es ist möglich Ausnahmen für einzelne Layer zu definieren und die Filtergeometrie anzuzeigen.
+Die Entwicklung dieses Plugins wurde von der Hessischen Verwaltung für Bodenmanagement und Geoinformation (HVBG) finanziert. Entwicklung: WhereGroup Bonn 2022
 
 tracker=http://bugs
 repository=http://repo
@@ -14,7 +18,7 @@ repository=http://repo
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 # changelog=
-tags=python, filter, vector
+tags=python, filter, vector, postgis, performance
 
 homepage=http://homepage
 category=Plugins
@@ -22,4 +26,3 @@ icon=icons/icon.png
 experimental=False
 deprecated=False
 server=False
-
