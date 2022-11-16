@@ -310,7 +310,6 @@ class FilterToolbar(QToolBar):
         self.styleFilterAction.setSymbolType(QgsSymbol.Fill)
         self.styleFilterAction.setSymbol(self.symbol.clone())
         self.styleFilterAction.setDialogTitle(self.tr('Style Filter'))
-
         self.addWidget(self.styleFilterAction)
 
         self.filterFromExtentAction = QAction(self)
@@ -353,6 +352,7 @@ class FilterToolbar(QToolBar):
         self.controller.filterChanged.connect(self.onFilterChanged)
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
         self.sketchingToolAction.triggered.connect(self.controller.startSketchingTool)
+        self.styleFilterAction.changed.connect(self.onFilterStyleChanged)
 
     def onRemoveFilterClicked(self):
         self.controller.removeFilter()
@@ -402,13 +402,13 @@ class FilterToolbar(QToolBar):
         dlg = ManageFiltersDialog(self.controller, parent=self)
         dlg.exec()
 
-    def onFilteStyleChanged(self):
+    def onFilterStyleChanged(self):
         # Always use clone to assign symbols, otherwise QGIS will crash
         self.symbol = self.styleFilterAction.symbol().clone()
         self.saveFilterStyle()
 
         if self.showGeomStatus:
-            self.removeFilterGeom()
+            self.hideFilterGeom()
             self.drawFilterGeom()
 
     def onShowGeom(self, checked: bool):
@@ -416,7 +416,7 @@ class FilterToolbar(QToolBar):
         if checked and self.controller.currentFilter:
             tooltip = self.tr('Hide filter geometry')
             self.hideFilterGeom()
-            self.showFilterGeom()
+            self.drawFilterGeom()
         else:
             tooltip = self.tr('Show filter geometry')
             self.hideFilterGeom()
