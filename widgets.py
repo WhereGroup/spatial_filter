@@ -64,6 +64,7 @@ class ExtentDialog(QDialog):
     def accept(self) -> None:
         if self.extentWidget.isValid():
             self.controller.initFilter()
+            self.controller.currentFilter.name = self.tr('New filter from extent')
             self.controller.currentFilter.wkt = QgsGeometry.fromRect(self.extentWidget.outputExtent()).asWkt()
             self.controller.currentFilter.crs = self.extentWidget.outputCrs()
             self.controller.refreshFilter()

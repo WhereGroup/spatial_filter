@@ -75,6 +75,7 @@ class FilterController(QObject):
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
         self.initFilter()
+        self.currentFilter.name = self.tr('New filter from ') + layer.name()
         self.currentFilter.crs = crs
         self.currentFilter.wkt = geom.asWkt()
         self.refreshFilter()
@@ -108,6 +109,7 @@ class FilterController(QObject):
             iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
             return
         self.initFilter()
+        self.currentFilter.name = self.tr('New filter from sketch')
         self.currentFilter.wkt = geometry.asWkt()
         self.currentFilter.crs = QgsProject.instance().crs()
         self.refreshFilter()
