@@ -303,7 +303,7 @@ class FilterToolbar(QToolBar):
         self.styleFilterButton.setMinimumWidth(self.BUTTON_MIN_WIDTH)
         self.styleFilterButton.setSymbolType(QgsSymbol.Fill)
         self.styleFilterButton.setSymbol(self.symbol.clone())
-        self.styleFilterButton.setDialogTitle(self.tr('Style Filter'))
+        self.styleFilterButton.setDialogTitle(self.tr('Style filter'))
         self.addWidget(self.styleFilterButton)
 
         self.filterFromExtentAction = QAction(self)

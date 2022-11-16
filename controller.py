@@ -81,7 +81,7 @@ class FilterController(QObject):
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
         self.initFilter()
-        self.currentFilter.name = self.tr('New filter from ') + layer.name()
+        self.currentFilter.name = self.tr('New filter from selection')
         self.currentFilter.crs = crs
         self.currentFilter.wkt = geom.asWkt()
         self.refreshFilter()
