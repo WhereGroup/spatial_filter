@@ -325,12 +325,12 @@ class FilterToolbar(QToolBar):
         self.addWidget(self.predicateButton)
 
         self.layerExceptionsAction = QAction(self)
-        self.layerExceptionsAction.setIcon(QgsApplication.getThemeIcon('/mIconLayerTree.svg'))
+        self.layerExceptionsAction.setIcon(QgsApplication.getThemeIcon('/mLayoutItemLegend.svg'))
         self.layerExceptionsAction.setToolTip(self.tr('Exclude layers from filter'))
         self.addAction(self.layerExceptionsAction)
 
         self.manageFiltersAction = QAction(self)
-        self.manageFiltersAction.setIcon(QgsApplication.getThemeIcon('/mActionFileOpen.svg'))
+        self.manageFiltersAction.setIcon(QgsApplication.getThemeIcon('/mIconListView.svg'))
         self.manageFiltersAction.setToolTip(self.tr('Manage filters'))
         self.addAction(self.manageFiltersAction)
 
