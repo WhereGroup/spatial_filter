@@ -1,4 +1,4 @@
-import os
+import os, pickle
 from dataclasses import replace
 
 from typing import Optional
@@ -20,12 +20,13 @@ from PyQt5.QtWidgets import (
 
 from qgis.gui import QgsExtentWidget, QgsRubberBand, QgsSymbolButton
 from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateReferenceSystem, QgsCoordinateTransform, \
-    QgsWkbTypes, QgsSymbol, QgsFillSymbol
+    QgsWkbTypes, QgsSymbol, QgsFillSymbol, QgsSettings
 from qgis.utils import iface
 
 from .controller import FilterController
 from .models import FilterModel, DataRole
 from .filters import Predicate, FilterManager, FilterDefinition
+from .settings import GROUP
 
 
 class ExtentDialog(QDialog):
@@ -175,6 +176,7 @@ class FilterToolbar(QToolBar):
         self.showGeomStatus = False
         self.symbol = QgsFillSymbol.createSimple({'color': '#0000ff', 'outline_color': 'black'})
         self.symbol.setOpacity(0.5)
+        self.loadFilterSyle()
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -291,6 +293,7 @@ class FilterToolbar(QToolBar):
     def onFilteStyleChanged(self):
         # Always use clone to assign symbols, otherwise QGIS will crash
         self.symbol = self.styleFilterAction.symbol().clone()
+        self.saveFilterStyle()
 
         if self.showGeomStatus:
             self.removeFilterGeom()
@@ -330,3 +333,22 @@ class FilterToolbar(QToolBar):
         while self.controller.rubberBands:
             rubberBand = self.controller.rubberBands.pop()
             iface.mapCanvas().scene().removeItem(rubberBand)
+
+    def saveFilterStyle(self):
+        """Save the current style of the filter into the profile settings"""
+
+        symbol = self.symbol.clone()
+        settings = QgsSettings()
+        settings.setValue(GROUP + "/SymbolColor", symbol.color().name(0))
+        settings.setValue(GROUP + "/SymbolOpacity", symbol.opacity())
+
+
+    def loadFilterSyle(self):
+        """Lad setting for filter style from profile settings"""
+
+        settings = QgsSettings()
+        opacity = settings.value(GROUP + "/SymbolOpacity", 0.5)
+        color = settings.value(GROUP + "/SymbolColor", "#880000ff")
+        self.symbol.setOpacity(float(opacity))
+        self.symbol.setColor(QColor(color))
+
