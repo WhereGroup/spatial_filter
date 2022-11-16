@@ -7,7 +7,6 @@ from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
 from .helpers import tr, saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName
-from .settings import SPLIT_STRING
 
 
 class Predicate(IntEnum):
@@ -65,20 +64,27 @@ class FilterDefinition:
         )
 
     @property
-    def storageString(self) -> str:
+    def storageDict(self) -> dict:
         """Returns a text serialisation of the FilterDefinition.
 
         For the CRS just the Auth ID is stored, e.g. EPSG:1234 or PROJ:9876.
         """
-        return SPLIT_STRING.join([self.name, self.wkt, self.crs.authid(), str(self.predicate), str(self.bbox)])
+        return {
+            'name': self.name,
+            'wkt': self.wkt,
+            'srid': self.crs.authid(),
+            'predicate': str(self.predicate),
+            'bbox': self.bbox
+        }
 
     @staticmethod
-    def fromStorageString(value: str) -> 'FilterDefinition':
-        parameters = value.split(SPLIT_STRING)
-        assert len(parameters) == 5, "Malformed FilterDefinition loaded from settings: {value}"
-        name, wkt, crs_auth_id, predicate, bbox_str = parameters
-        crs = QgsCoordinateReferenceSystem(crs_auth_id)
-        bbox = bool(bbox_str == 'True')
+    def fromStorageDict(value: dict) -> 'FilterDefinition':
+        assert len(value) == 5, f"Malformed FilterDefinition loaded from settings: {value}"
+        name = value['name']
+        wkt = value['wkt']
+        predicate = value['predicate']
+        bbox = value['bbox']
+        crs = QgsCoordinateReferenceSystem(value['srid'])
         return FilterDefinition(name, wkt, crs, predicate, bbox)
 
     @staticmethod
@@ -91,18 +97,18 @@ class FilterDefinition:
 
     @property
     def isSaved(self) -> bool:
-        return self.storageString == readSettingsValue(self.name)
+        return self.storageDict == readSettingsValue(self.name)
 
     def copy(self):
         return replace(self)
 
 
 def loadFilterDefinition(name: str) -> FilterDefinition:
-    return FilterDefinition.fromStorageString(readSettingsValue(name))
+    return FilterDefinition.fromStorageDict(readSettingsValue(name))
 
 
 def loadAllFilterDefinitions() -> List[FilterDefinition]:
-    return [FilterDefinition.fromStorageString(value) for value in allSettingsValues()]
+    return [FilterDefinition.fromStorageDict(value) for value in allSettingsValues()]
 
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
@@ -120,7 +126,7 @@ def saveFilterDefinition(filterDef: FilterDefinition) -> None:
     if readSettingsValue(filterDef.name):
         if not askOverwrite(filterDef.name):
             return
-    saveSettingsValue(filterDef.name, filterDef.storageString)
+    saveSettingsValue(filterDef.name, filterDef.storageDict)
 
 
 def deleteFilterDefinition(filterDef: FilterDefinition) -> None:
