@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from enum import Enum, IntEnum
+from enum import IntEnum
 from typing import List
 
 from PyQt5.QtWidgets import QMessageBox
@@ -7,7 +7,8 @@ from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
-from .helpers import tr, saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, getLayerGeomName, matchFormatString
+from .helpers import tr, saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, \
+    getLayerGeomName, matchFormatString
 
 
 FILTERSTRING_TEMPLATE = "{spatial_predicate}({geom_name}, ST_TRANSFORM(ST_GeomFromText('{wkt}', {srid}), {layer_srid}))"

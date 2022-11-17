@@ -4,7 +4,7 @@ from typing import Optional
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon, QColor
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QToolBar,
     QWidget,
@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QSizePolicy,
-    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QInputDialog, QTreeView
+    QDialogButtonBox, QListWidget, QMenu, QActionGroup, QLabel, QFrame, QTreeView
 )
 
 from qgis.gui import QgsExtentWidget, QgsRubberBand, QgsSymbolButton

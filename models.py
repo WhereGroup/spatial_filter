@@ -1,5 +1,3 @@
-from typing import Any
-
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
@@ -58,4 +56,3 @@ class LayerModel(QStandardItemModel):
             else:
                 item.setCheckState(Qt.Unchecked)
             self.appendRow(item)
-
