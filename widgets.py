@@ -22,11 +22,11 @@ from qgis.core import QgsApplication, QgsGeometry, QgsProject, QgsCoordinateRefe
     QgsWkbTypes, QgsSymbol, QgsFillSymbol, QgsSettings, QgsVectorLayer
 from qgis.utils import iface
 
-from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer
+from .helpers import removeFilterFromLayer, setLayerException, hasLayerException, addFilterToLayer, class_for_name
 from .controller import FilterController
 from .models import FilterModel, LayerModel, DataRole
 from .filters import Predicate, FilterDefinition, askApply, deleteFilterDefinition, saveFilterDefinition
-from .settings import GROUP_SYMBOLS, FILTER_FILL_COLOR, FILTER_OUTLINE_COLOR, FILTER_OPACITY
+from .settings import GROUP_SYMBOL, FILTER_SYMBOL
 
 
 class ExtentDialog(QDialog):
@@ -271,9 +271,7 @@ class FilterToolbar(QToolBar):
         self.controller = controller
         self.showGeomStatus = False
         self.extentDialog = None
-        self.symbol = QgsFillSymbol.createSimple({'color': FILTER_FILL_COLOR, 'outline_color': FILTER_OUTLINE_COLOR})
-        self.symbol.setOpacity(FILTER_OPACITY)
-        self.loadFilterSyle()
+        self.symbol = self.loadFilterSymbol()
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
         self.setupUi()
@@ -412,7 +410,7 @@ class FilterToolbar(QToolBar):
     def onFilterStyleChanged(self, *args, **kwargs):
         # Always use clone to assign symbols, otherwise QGIS will crash
         self.symbol = self.styleFilterButton.symbol().clone()
-        self.saveFilterStyle()
+        self.saveFilterSymbol()
 
         if self.showGeomStatus:
             self.hideFilterGeom()
@@ -450,20 +448,26 @@ class FilterToolbar(QToolBar):
             rubberBand = self.controller.rubberBands.pop()
             iface.mapCanvas().scene().removeItem(rubberBand)
 
-    def saveFilterStyle(self):
-        """Save the current style of the filter into the profile settings"""
+    def saveFilterSymbol(self):
+        """Save the current symbol of the filter into the profile settings"""
         symbol = self.symbol.clone()
-        settings = QgsSettings()
-        settings.setValue(GROUP_SYMBOLS + "/SymbolColor", symbol.color().name(0))
-        settings.setValue(GROUP_SYMBOLS + "/SymbolOpacity", symbol.opacity())
+        # Note: This does not store sub-layers of e.g. a Marker Fill's marker symbols!
+        symbol_layers = [[type(sl).__name__, sl.properties()] for sl in symbol.symbolLayers()]
+        QgsSettings().setValue(GROUP_SYMBOL + "/Symbol", symbol_layers)
 
-    def loadFilterSyle(self):
-        """Load setting for filter style from profile settings"""
-        settings = QgsSettings()
-        opacity = settings.value(GROUP_SYMBOLS + "/SymbolOpacity", FILTER_OPACITY)
-        color = settings.value(GROUP_SYMBOLS + "/SymbolColor", FILTER_FILL_COLOR)
-        self.symbol.setOpacity(float(opacity))
-        self.symbol.setColor(QColor(color))
+    def loadFilterSymbol(self):
+        """Load setting for filter symbol from profile settings"""
+        stored_symbol_layers = QgsSettings().value(GROUP_SYMBOL + "/Symbol")
+        if stored_symbol_layers:
+            # awkward but non-crashing creation with proper object ownerships...
+            symbol = QgsFillSymbol()
+            symbol.deleteSymbolLayer(0)
+            for symbol_layer_type, properties in stored_symbol_layers:
+                symbol_layer = class_for_name("qgis.core", symbol_layer_type).create(properties)
+                symbol.appendSymbolLayer(symbol_layer.clone())
+            return symbol
+        else:
+            return QgsFillSymbol.createSimple(FILTER_SYMBOL)
 
     def zoomToFilter(self):
         if self.controller.hasValidFilter():

@@ -1,4 +1,5 @@
 import re
+import importlib
 from typing import Any, List, Iterable
 
 from PyQt5.QtCore import QCoreApplication
@@ -122,3 +123,15 @@ def matchFormatString(format_str: str, s: str) -> dict:
 
     # Return a dict with all of our keywords and their values
     return {x: matches.group(x) for x in keywords}
+
+
+def class_for_name(module_name:str, class_name: str):
+    """Loads a class via its name as string.
+
+    Source: https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
+    """
+    # load the module, will raise ImportError if module cannot be loaded
+    m = importlib.import_module(module_name)
+    # get the class, will raise AttributeError if class cannot be found
+    c = getattr(m, class_name)
+    return c

@@ -1,10 +1,8 @@
 GROUP = 'SpatialFilter'  # The section name for filter definitions stored in QSettings
-GROUP_SYMBOLS = 'SpatialFilterSymbols'  # Section to store symbols settings
+GROUP_SYMBOL = 'SpatialFilterSymbol'  # Section to store symbol settings
 LAYER_EXCEPTION_VARIABLE = 'SpatialFilterException'
 
-FILTER_FILL_COLOR = '#0000ff'
-FILTER_OUTLINE_COLOR = "#000000"
-FILTER_OPACITY = 0.5
+FILTER_SYMBOL = {"color": "#0000ff", "outline_color": "#000000", "opacity": 0.5}
 
 # The filter string might contain user-specific parts so we surround *our* filter
 # string with text markers
