@@ -29,13 +29,13 @@ from .controller import FilterController
 from .widgets import FilterToolbar
 
 
-class MapFilter:
+class SpatialFilter:
 
     def __init__(self, iface):
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
         locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(self.plugin_dir, 'i18n', f'map_filter_{locale}.qm')
+        locale_path = os.path.join(self.plugin_dir, 'i18n', f'spatial_filter_{locale}.qm')
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()

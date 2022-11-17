@@ -6,13 +6,13 @@ Contributors are welcome to extend the plugin's features further. Please fork th
 
 1. Update .ts file
 
-       pylupdate5 i18n/map_filter.pro
+       pylupdate5 i18n/spatial_filter.pro
 
 1. Edit translations with QtLinguist in .ts file
 
 1. Create .qm file
 
-       lrelease i18n/map_filter_de.py
+       lrelease i18n/spatial_filter_de.py
 
    or alternatively
 

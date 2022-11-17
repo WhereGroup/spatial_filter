@@ -56,8 +56,13 @@ class ExtentDialog(QDialog):
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
+    def reset(self):
+        self.extentWidget.clear()
+        self.extentWidget.setOriginalExtent(iface.mapCanvas().extent(), QgsProject.instance().crs())
+        self.extentWidget.setMapCanvas(iface.mapCanvas())
+
     def accept(self) -> None:
-        if self.extentWidget.isValid():
+        if self.extentWidget.isValid() and QgsGeometry.fromRect(self.extentWidget.outputExtent()).isGeosValid():
             self.controller.initFilter()
             self.controller.currentFilter.name = self.tr('New filter from extent')
             self.controller.currentFilter.wkt = QgsGeometry.fromRect(self.extentWidget.outputExtent()).asWkt()
@@ -189,7 +194,7 @@ class PredicateButton(QPushButton):
         self.setIcon(QgsApplication.getThemeIcon('/mActionOptions.svg'))
         self.menu = QMenu(parent=parent)
 
-        self.sectionPredicates = self.menu.addSection(self.tr('Geometric Predicate'))
+        self.menu.addSection(self.tr('Geometric Predicate'))
         self.predicateActionGroup = QActionGroup(self)
         self.predicateActionGroup.setExclusive(True)
         for predicate in Predicate:
@@ -203,7 +208,7 @@ class PredicateButton(QPushButton):
             self.predicateActionGroup.addAction(action)
         self.menu.addActions(self.predicateActionGroup.actions())
 
-        self.sectionComparison = self.menu.addSection(self.tr('Object of comparison'))
+        self.menu.addSection(self.tr('Object of comparison'))
         self.bboxActionGroup = QActionGroup(self)
         self.bboxActionGroup.setExclusive(True)
         self.bboxTrueAction = QAction(self.menu)
@@ -265,6 +270,7 @@ class FilterToolbar(QToolBar):
         super().__init__(parent=parent)
         self.controller = controller
         self.showGeomStatus = False
+        self.extentDialog = None
         self.symbol = self.loadFilterSymbol()
         self.setWindowTitle(self.tr('Filter Toolbar'))
         self.setObjectName('mFilterToolbar')
@@ -297,12 +303,19 @@ class FilterToolbar(QToolBar):
         self.toggleVisibilityAction.setToolTip(self.tr('Show filter geometry'))
         self.addAction(self.toggleVisibilityAction)
 
+        self.zoomToFilterAction = QAction(self)
+        self.zoomToFilterAction.setIcon(QgsApplication.getThemeIcon('/mActionZoomToArea.svg'))
+        self.zoomToFilterAction.setToolTip(self.tr('Zoom to filter'))
+        self.addAction(self.zoomToFilterAction)
+
         self.styleFilterButton = QgsSymbolButton(self, self.tr('Filter style'))
         self.styleFilterButton.setMinimumWidth(self.BUTTON_MIN_WIDTH)
         self.styleFilterButton.setSymbolType(QgsSymbol.Fill)
         self.styleFilterButton.setSymbol(self.symbol.clone())
         self.styleFilterButton.setDialogTitle(self.tr('Style filter'))
         self.addWidget(self.styleFilterButton)
+
+        self.addSeparator()
 
         self.filterFromExtentAction = QAction(self)
         self.filterFromExtentAction.setIcon(QgsApplication.getThemeIcon('/mActionAddBasicRectangle.svg'))
@@ -318,6 +331,8 @@ class FilterToolbar(QToolBar):
         self.sketchingToolAction.setIcon(QgsApplication.getThemeIcon('/mActionAddPolygon.svg'))
         self.sketchingToolAction.setToolTip(self.tr('Draw a filter polygon on the canvas'))
         self.addAction(self.sketchingToolAction)
+
+        self.addSeparator()
 
         self.predicateButton = PredicateButton(self)
         self.predicateButton.setIconSize(self.iconSize())
@@ -345,20 +360,13 @@ class FilterToolbar(QToolBar):
         self.toggleVisibilityAction.toggled.connect(self.onShowGeom)
         self.sketchingToolAction.triggered.connect(self.controller.startSketchingTool)
         self.styleFilterButton.changed.connect(self.onFilterStyleChanged)
+        self.zoomToFilterAction.triggered.connect(self.zoomToFilter)
 
     def onRemoveFilterClicked(self):
         self.controller.removeFilter()
 
     def onFilterChanged(self, filterDef: Optional[FilterDefinition]):
-        if not filterDef:
-            self.predicateButton.setCurrentPredicateAction(Predicate.INTERSECTS)
-            self.predicateButton.setCurrentBboxAction(False)
-            self.removeFilterAction.setEnabled(False)
-            self.labelFilterName.setEnabled(False)
-            self.toggleVisibilityAction.setEnabled(False)
-            self.predicateButton.setEnabled(False)
-            self.layerExceptionsAction.setEnabled(False)
-        else:
+        if filterDef:
             self.predicateButton.setCurrentPredicateAction(filterDef.predicate)
             self.predicateButton.setCurrentBboxAction(filterDef.bbox)
             self.removeFilterAction.setEnabled(True)
@@ -366,6 +374,16 @@ class FilterToolbar(QToolBar):
             self.toggleVisibilityAction.setEnabled(True)
             self.predicateButton.setEnabled(True)
             self.layerExceptionsAction.setEnabled(True)
+            self.zoomToFilterAction.setEnabled(True)
+        else:
+            self.predicateButton.setCurrentPredicateAction(Predicate.INTERSECTS)
+            self.predicateButton.setCurrentBboxAction(False)
+            self.removeFilterAction.setEnabled(False)
+            self.labelFilterName.setEnabled(False)
+            self.toggleVisibilityAction.setEnabled(False)
+            self.predicateButton.setEnabled(False)
+            self.layerExceptionsAction.setEnabled(False)
+            self.zoomToFilterAction.setEnabled(False)
         self.changeDisplayedName(filterDef)
         self.onShowGeom(self.showGeomStatus)
 
@@ -376,8 +394,10 @@ class FilterToolbar(QToolBar):
             self.labelFilterName.setText(self.tr("No filter geometry set"))
 
     def startFilterFromExtentDialog(self):
-        dlg = ExtentDialog(self.controller, parent=self)
-        dlg.show()
+        if not self.extentDialog:
+            self.extentDialog = ExtentDialog(self.controller, parent=self)
+        self.extentDialog.reset()
+        self.extentDialog.show()
 
     def startLayerExceptionsDialog(self):
         dlg = LayerExceptionsDialog(self.controller, parent=self)
@@ -448,3 +468,8 @@ class FilterToolbar(QToolBar):
             return symbol
         else:
             return QgsFillSymbol.createSimple(FILTER_SYMBOL)
+
+    def zoomToFilter(self):
+        if self.controller.hasValidFilter():
+            iface.mapCanvas().setExtent(self.controller.currentFilter.geometry.boundingBox())
+            iface.mapCanvas().refresh()

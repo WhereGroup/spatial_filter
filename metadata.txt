@@ -1,5 +1,5 @@
 [general]
-name=Map Filter
+name=Räumlicher Filter
 qgisMinimumVersion=3.22
 description=Spatial filters for PostGIS layers
 description[de]=Räumliche Filter für PostGIS-Layer
