@@ -239,12 +239,12 @@
 <context>
     <name>FilterToolbar</name>
     <message>
-        <location filename="../widgets.py" line="311"/>
+        <location filename="../widgets.py" line="318"/>
         <source>Rectangular filter</source>
         <translation>Rechteckiger Filter</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="316"/>
+        <location filename="../widgets.py" line="323"/>
         <source>Filter from selected features</source>
         <translation>Filter aus gewählten Features</translation>
     </message>
@@ -259,7 +259,7 @@
         <translation type="obsolete">Filter speichern</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="335"/>
+        <location filename="../widgets.py" line="344"/>
         <source>Manage filters</source>
         <translation>Filter verwalten</translation>
     </message>
@@ -269,7 +269,7 @@
         <translation>Filterwerkzeugleiste</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="409"/>
+        <location filename="../widgets.py" line="420"/>
         <source>Show filter geometry</source>
         <translation>Filtergeometrie anzeigen</translation>
     </message>
@@ -284,22 +284,22 @@
         <translation type="obsolete">Filter deaktivieren</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="378"/>
+        <location filename="../widgets.py" line="390"/>
         <source>No filter geometry set</source>
         <translation>Keine Filtergeometrie gesetzt</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="330"/>
+        <location filename="../widgets.py" line="339"/>
         <source>Exclude layers from filter</source>
         <translation>Ausnahmen festlegen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="405"/>
+        <location filename="../widgets.py" line="416"/>
         <source>Hide filter geometry</source>
         <translation>Filtergeometrie verstecken</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="321"/>
+        <location filename="../widgets.py" line="328"/>
         <source>Draw a filter polygon on the canvas</source>
         <translation>Filter Polygon in der Karte zeichnen</translation>
     </message>
@@ -314,14 +314,19 @@
         <translation>Filter entfernen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="302"/>
+        <location filename="../widgets.py" line="307"/>
         <source>Filter style</source>
         <translation>Filterstil</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="306"/>
+        <location filename="../widgets.py" line="311"/>
         <source>Style filter</source>
         <translation>Filterstil wählen</translation>
+    </message>
+    <message>
+        <location filename="../widgets.py" line="304"/>
+        <source>Zoom to filter</source>
+        <translation>Auf Filter zoomen</translation>
     </message>
 </context>
 <context>
@@ -456,7 +461,7 @@
     <message>
         <location filename="../widgets.py" line="185"/>
         <source>disjoint</source>
-        <translation>disjoint</translation>
+        <translation>schneidet nicht</translation>
     </message>
 </context>
 </TS>

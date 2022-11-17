@@ -32,5 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .map_filter import MapFilter
-    return MapFilter(iface)
+    from .spatial_filter import SpatialFilter
+    return SpatialFilter(iface)

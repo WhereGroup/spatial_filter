@@ -1,4 +1,4 @@
-# HVBG Filterplugin
+# QGIS Plugin: Räumlicher Filter
 Please scroll down for the English version.
 
 ## Deutsch
