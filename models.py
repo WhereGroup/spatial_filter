@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
-from qgis.core import QgsMessageLog, Qgis, QgsProject,  QgsFeatureSource, QgsApplication
+from qgis.core import QgsProject,  QgsFeatureSource, QgsApplication
 
 from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException
@@ -17,7 +17,6 @@ class FilterModel(QAbstractListModel):
         super().__init__(parent)
         self.filters = loadAllFilterDefinitions()
         self.filters.sort()
-        QgsMessageLog.logMessage(f"{len(self.filters)} filter definitions loaded.", "FilterPlugin", level=Qgis.Info)
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
