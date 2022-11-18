@@ -16,7 +16,7 @@
     <message>
         <location filename="../filters.py" line="148"/>
         <source>Please provide a name for the filter</source>
-        <translation>Bitte benennen Sie erst den Filter</translation>
+        <translation>Bitte zuerst einen Filternamen vergeben</translation>
     </message>
     <message>
         <location filename="../filters.py" line="182"/>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../filters.py" line="113"/>
         <source>Please provide a name for the filter</source>
-        <translation type="obsolete">Bitte benennen Sie erst den Filter</translation>
+        <translation type="obsolete">Bitte zuerst einen Filternamen vergeben</translation>
     </message>
     <message>
         <location filename="../filters.py" line="132"/>
@@ -301,7 +301,7 @@
     <message>
         <location filename="../widgets.py" line="328"/>
         <source>Draw a filter polygon on the canvas</source>
-        <translation>Filter Polygon in der Karte zeichnen</translation>
+        <translation>Filter-Polygon in der Karte zeichnen</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="444"/>
@@ -334,7 +334,7 @@
     <message>
         <location filename="../widgets.py" line="74"/>
         <source>Exclude layers from filter</source>
-        <translation></translation>
+        <translation>Ausnahmen festlegen</translation>
     </message>
 </context>
 <context>
