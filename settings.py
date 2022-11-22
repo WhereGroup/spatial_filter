@@ -9,5 +9,5 @@ FILTER_SYMBOL = {"color": "#0000ff", "outline_color": "#000000", "opacity": 0.5}
 FILTER_COMMENT_START = '/* SpatialFilter Plugin Start */'
 FILTER_COMMENT_STOP = '/* SpatialFilter Plugin Stop */'
 
-# The QGIS Provider Types that can be filtered by the plugin
-SUPPORTED_PROVIDERS = ['postgres']
+# The QGIS Storage Types that can be filtered by the plugin
+SUPPORTED_STORAGE_TYPES = ['POSTGRESQL DATABASE WITH POSTGIS EXTENSION', 'GPKG', 'SQLITE']
