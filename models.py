@@ -5,7 +5,7 @@ from qgis.core import QgsMessageLog, Qgis, QgsProject,  QgsFeatureSource, QgsApp
 
 from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException
-from .settings import SUPPORTED_PROVIDERS
+from .settings import SUPPORTED_STORAGE_TYPES
 
 
 DataRole = Qt.UserRole + 1
@@ -43,7 +43,7 @@ class LayerModel(QStandardItemModel):
             item = QStandardItem(layer.name())
             item.setData(layer, role=DataRole)
             item.setFlags(Qt.ItemIsUserCheckable)
-            if layer.providerType() in SUPPORTED_PROVIDERS:
+            if layer.storageType().upper() in SUPPORTED_STORAGE_TYPES:
                 item.setEnabled(True)
                 if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexNotPresent:
                     item.setToolTip(self.tr('Layer has no spatial index'))

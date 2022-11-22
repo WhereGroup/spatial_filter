@@ -2,10 +2,10 @@ import re
 import importlib
 from typing import Any, List, Iterable
 
+from osgeo import ogr
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
-
-from .settings import SUPPORTED_PROVIDERS, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
+from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
 
 
 def tr(message):
@@ -50,7 +50,7 @@ def getSupportedLayers(layers: Iterable[QgsMapLayer]):
     for layer in layers:
         if layer.type() != QgsMapLayerType.VectorLayer:
             continue
-        if layer.providerType() not in SUPPORTED_PROVIDERS:
+        if layer.storageType().upper() not in SUPPORTED_STORAGE_TYPES:
             continue
         yield layer
 
@@ -76,7 +76,19 @@ def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
 
 
 def getLayerGeomName(layer: QgsVectorLayer):
-    return layer.dataProvider().uri().geometryColumn()
+    return layer.dataProvider().uri().geometryColumn() or getLayerGeomNameOgr(layer)
+
+
+def getLayerGeomNameOgr(layer: QgsVectorLayer):
+    source = layer.source().split('|')
+    gpkg = source[0]
+    lname = source[1].split('=')[1]
+    conn = ogr.Open(gpkg)
+    ogrLayer = conn.GetLayerByName(lname)
+    columnName = ogrLayer.GetGeometryColumn()
+    ogrLayer = None
+    conn = None
+    return columnName
 
 
 def hasLayerException(layer: QgsVectorLayer) -> bool:
@@ -125,7 +137,7 @@ def matchFormatString(format_str: str, s: str) -> dict:
     return {x: matches.group(x) for x in keywords}
 
 
-def class_for_name(module_name:str, class_name: str):
+def class_for_name(module_name: str, class_name: str):
     """Loads a class via its name as string.
 
     Source: https://stackoverflow.com/questions/1176136/convert-string-to-python-class-object
