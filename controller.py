@@ -24,6 +24,8 @@ class FilterController(QObject):
         self.connectSignals()
 
     def connectSignals(self):
+        # Many thanks to *Thomas B* for suggesting that the layersAdded signal fires so quickly that editing
+        # the layer filter will happen before the data is actually requested, at least for PostGIS
         QgsProject.instance().layersAdded.connect(self.onLayersAdded)
 
     def disconnectSignals(self):
