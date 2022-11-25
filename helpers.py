@@ -45,6 +45,9 @@ def removeSettingsValue(key: str) -> None:
 
 
 def refreshLayerTree() -> None:
+    """Refreshes the layer tree to update the filter icons.
+    We use hide() and show() as there is no native refresh method
+    """
     tree = iface.layerTreeView()
     tree.hide()
     tree.show()
