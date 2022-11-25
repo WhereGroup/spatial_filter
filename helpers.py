@@ -5,6 +5,8 @@ from typing import Any, List, Iterable
 from osgeo import ogr
 from PyQt5.QtCore import QCoreApplication
 from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
+from qgis.utils import iface
+
 from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
 
 
@@ -43,7 +45,12 @@ def removeSettingsValue(key: str) -> None:
 
 
 def refreshLayerTree() -> None:
-    pass
+    """Refreshes the layer tree to update the filter icons.
+    We use hide() and show() as there is no native refresh method
+    """
+    tree = iface.layerTreeView()
+    tree.hide()
+    tree.show()
 
 
 def getSupportedLayers(layers: Iterable[QgsMapLayer]):
