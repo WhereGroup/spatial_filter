@@ -376,6 +376,8 @@ class FilterToolbar(QToolBar):
             self.predicateButton.setEnabled(True)
             self.layerExceptionsAction.setEnabled(True)
             self.zoomToFilterAction.setEnabled(True)
+            if not self.showGeomStatus:
+                self.toggleVisibilityAction.trigger()
         else:
             self.predicateButton.setCurrentPredicateAction(Predicate.INTERSECTS)
             self.predicateButton.setCurrentBboxAction(False)
