@@ -269,7 +269,7 @@ class FilterToolbar(QToolBar):
     def __init__(self, controller: FilterController, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent=parent)
         self.controller = controller
-        self.showGeomStatus = False
+        self.showGeomStatus = True
         self.extentDialog = None
         self.symbol = self.loadFilterSymbol()
         self.setWindowTitle(self.tr('Filter Toolbar'))
@@ -300,6 +300,7 @@ class FilterToolbar(QToolBar):
         visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
         self.toggleVisibilityAction.setIcon(visibilityIcon)
         self.toggleVisibilityAction.setCheckable(True)
+        self.toggleVisibilityAction.setChecked(True)
         self.toggleVisibilityAction.setToolTip(self.tr('Show filter geometry'))
         self.addAction(self.toggleVisibilityAction)
 
@@ -375,6 +376,8 @@ class FilterToolbar(QToolBar):
             self.predicateButton.setEnabled(True)
             self.layerExceptionsAction.setEnabled(True)
             self.zoomToFilterAction.setEnabled(True)
+            if not self.showGeomStatus:
+                self.toggleVisibilityAction.trigger()
         else:
             self.predicateButton.setCurrentPredicateAction(Predicate.INTERSECTS)
             self.predicateButton.setCurrentBboxAction(False)
