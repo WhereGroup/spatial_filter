@@ -81,7 +81,7 @@ class FilterController(QObject):
             iface.messageBar().pushInfo('', self.tr('No features selected'))
             return
         crs = iface.activeLayer().crs()
-        geom = QgsGeometry().collectGeometry([feature.geometry() for feature in layer.selectedFeatures()])
+        geom = QgsGeometry().unaryUnion([feature.geometry() for feature in layer.selectedFeatures()])
         self.initFilter()
         self.currentFilter.name = self.tr('New filter from selection')
         self.currentFilter.crs = crs
