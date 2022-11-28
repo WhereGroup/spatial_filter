@@ -1,0 +1,26 @@
+[general]
+name=Räumlicher Filter
+qgisMinimumVersion=3.22
+description=Spatial filters for PostGIS layers
+description[de]=Räumliche Filter für PostGIS-Layer
+version=0.9
+author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
+email=info@wheregroup.com
+
+about=Create and manage spatial filters that are applied to PostGIS vector layers in the current QGIS project. The plugin allows for filtered viewing and editing of the layer, with the filter being defined by a polygon geometry or a bounding box. It is possible to define exceptions for layers and display the filter geometry on the map canvas. The development of this plugin by WhereGroup was funded by Hessische Verwaltung für Bodenmanagement und Geoinformation (HVBG).
+about[de]=Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS-Layer im aktuellen QGIS-Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine bestimmte Polygongeometrie oder deren minimal umfassendes Rechteck begrenzen. Es ist möglich Ausnahmen für einzelne Layer zu definieren und die Filtergeometrie anzuzeigen. Die Entwicklung dieses Plugins durch die WhereGroup wurde von der Hessischen Verwaltung für Bodenmanagement und Geoinformation (HVBG) finanziert.
+
+tracker=https://github.com/WhereGroup/spatial_filter/issues
+repository=https://github.com/WhereGroup/spatial_filter
+
+hasProcessingProvider=no
+# Uncomment the following line and add your changelog:
+# changelog=
+tags=python, filter, vector, postgis, performance
+
+homepage=https://github.com/WhereGroup/spatial_filter
+category=Plugins
+icon=icons/icon.png
+experimental=False
+deprecated=False
+server=False

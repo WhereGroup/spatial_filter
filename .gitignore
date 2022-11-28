@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Custom
+*.gpkg-shm
+*.gpkg-wal
+zip_build/
