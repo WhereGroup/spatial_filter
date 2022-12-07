@@ -1,3 +1,4 @@
+import os
 import re
 import importlib
 from typing import Any, List, Iterable
@@ -87,10 +88,20 @@ def getLayerGeomName(layer: QgsVectorLayer):
 
 
 def getLayerGeomNameOgr(layer: QgsVectorLayer):
-    source = layer.source().split('|')
-    gpkg = source[0]
-    lname = source[1].split('=')[1]
-    conn = ogr.Open(gpkg)
+    source = layer.source()
+
+    # layer source *might* include pipe character and then the layername
+    # but when created from a processing algorithm, it might not
+    if "|" in source:
+        split_source = source.split('|')
+        filepath = split_source[0]
+        lname = split_source[1].split('=')[1]
+    else:
+        # assuming we simply got a full path to the file and nothing else
+        filepath = layer.source()
+        lname = os.path.splitext(os.path.basename(filepath))[0]
+
+    conn = ogr.Open(filepath)
     ogrLayer = conn.GetLayerByName(lname)
     columnName = ogrLayer.GetGeometryColumn()
     ogrLayer = None
