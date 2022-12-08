@@ -1,6 +1,8 @@
 # QGIS Plugin: Räumlicher Filter
 Please scroll down for the English version.
 
+![screenshot](https://user-images.githubusercontent.com/7661092/206454661-e5408810-25bd-4078-9a3b-a54aaff56b53.png)
+
 ## Deutsch
 
 ### Beschreibung
