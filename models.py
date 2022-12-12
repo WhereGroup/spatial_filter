@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
-from qgis.core import QgsProject,  QgsFeatureSource, QgsApplication
+from qgis.core import QgsMapLayerType, QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
 
 from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException
@@ -39,10 +39,11 @@ class LayerModel(QStandardItemModel):
         super(LayerModel, self).__init__(parent)
 
         for layer in [layerNode.layer() for layerNode in QgsProject.instance().layerTreeRoot().findLayers()]:
+
             item = QStandardItem(layer.name())
             item.setData(layer, role=DataRole)
-            item.setFlags(Qt.ItemIsUserCheckable)
-            if layer.storageType().upper() in SUPPORTED_STORAGE_TYPES:
+
+            if layer.type() == QgsMapLayerType.VectorLayer and layer.storageType().upper() in SUPPORTED_STORAGE_TYPES:
                 item.setEnabled(True)
                 if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexNotPresent:
                     item.setToolTip(self.tr('Layer has no spatial index'))
@@ -50,8 +51,12 @@ class LayerModel(QStandardItemModel):
             else:
                 item.setEnabled(False)
                 item.setToolTip(self.tr('Layer type is not supported'))
-            if hasLayerException(layer):
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
+            self.initItemCheckState(layer, item)
             self.appendRow(item)
+
+    def initItemCheckState(self, layer: QgsMapLayer, item: QStandardItem):
+        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        if hasLayerException(layer):
+            item.setCheckState(Qt.Checked)
+        else:
+            item.setCheckState(Qt.Unchecked)
