@@ -1,11 +1,10 @@
 from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
-from qgis.core import QgsMapLayerType, QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
+from qgis.core import QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
 
 from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException, isLayerSupported
-from .settings import SUPPORTED_STORAGE_TYPES
 
 
 DataRole = Qt.UserRole + 1
