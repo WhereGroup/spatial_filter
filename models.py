@@ -4,7 +4,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from qgis.core import QgsMapLayerType, QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
 
 from .filters import loadAllFilterDefinitions
-from .helpers import hasLayerException
+from .helpers import hasLayerException, isLayerSupported
 from .settings import SUPPORTED_STORAGE_TYPES
 
 
@@ -43,7 +43,7 @@ class LayerModel(QStandardItemModel):
             item = QStandardItem(layer.name())
             item.setData(layer, role=DataRole)
 
-            if layer.type() == QgsMapLayerType.VectorLayer and layer.storageType().upper() in SUPPORTED_STORAGE_TYPES:
+            if isLayerSupported(layer):
                 item.setEnabled(True)
                 if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexNotPresent:
                     item.setToolTip(self.tr('Layer has no spatial index'))
