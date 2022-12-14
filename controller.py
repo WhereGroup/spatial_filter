@@ -39,9 +39,7 @@ class FilterController(QObject):
         if self.hasValidFilter():
             # Apply the filter to added layers or loaded project
             for layer in getSupportedLayers(layers):
-                filterCondition = self.currentFilter.filterString(layer)
-                filterString = f'{FILTER_COMMENT_START}{filterCondition}{FILTER_COMMENT_STOP}'
-                layer.setSubsetString(filterString)
+                addFilterToLayer(layer, self.currentFilter)
         else:
             # Look for saved filters to use with the plugin (possible when project was loaded)
             for layer in getSupportedLayers(layers):
