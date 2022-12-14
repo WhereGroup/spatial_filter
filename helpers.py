@@ -56,11 +56,18 @@ def refreshLayerTree() -> None:
 
 def getSupportedLayers(layers: Iterable[QgsMapLayer]):
     for layer in layers:
-        if layer.type() != QgsMapLayerType.VectorLayer:
-            continue
-        if layer.storageType().upper() not in SUPPORTED_STORAGE_TYPES:
-            continue
-        yield layer
+        if isLayerSupported(layer):
+            yield layer
+
+
+def isLayerSupported(layer: QgsMapLayer):
+    if layer.type() != QgsMapLayerType.VectorLayer:
+        return False
+    if layer.storageType().upper() not in SUPPORTED_STORAGE_TYPES:
+        return False
+    if not layer.isSpatial():
+        return False
+    return True
 
 
 def removeFilterFromLayer(layer: QgsVectorLayer):
