@@ -1,6 +1,6 @@
 from typing import Iterable, Optional, List
 
-from PyQt5.QtCore import pyqtSignal, QObject
+from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import Qgis, QgsProject, QgsMapLayer, QgsMapLayerType, QgsWkbTypes, QgsGeometry
 from qgis.gui import QgsRubberBand
 from qgis.utils import iface

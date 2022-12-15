@@ -1,5 +1,5 @@
-from PyQt5.QtCore import QAbstractListModel, Qt, QModelIndex
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from qgis.PyQt.QtCore import QAbstractListModel, Qt, QModelIndex
+from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem
 
 from qgis.core import QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
 

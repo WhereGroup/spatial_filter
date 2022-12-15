@@ -2,7 +2,7 @@ from dataclasses import dataclass, replace
 from enum import IntEnum
 from typing import List
 
-from PyQt5.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
