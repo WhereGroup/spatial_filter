@@ -4,7 +4,7 @@ import importlib
 from typing import Any, List, Iterable
 
 from osgeo import ogr
-from PyQt5.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
 from qgis.utils import iface
 
