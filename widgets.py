@@ -2,10 +2,10 @@ import os
 
 from typing import Optional
 
-from PyQt5 import uic
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import (
     QToolBar,
     QWidget,
     QAction,

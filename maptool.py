@@ -2,7 +2,7 @@ from qgis.gui import QgsMapTool, QgsRubberBand
 from qgis.core import QgsGeometry, QgsWkbTypes
 from qgis.utils import iface
 
-from PyQt5.QtCore import Qt, QPoint, pyqtSignal
+from qgis.PyQt.QtCore import Qt, QPoint, pyqtSignal
 
 
 class PolygonTool(QgsMapTool):
