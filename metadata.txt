@@ -14,9 +14,16 @@ tracker=https://github.com/WhereGroup/spatial_filter/issues
 repository=https://github.com/WhereGroup/spatial_filter
 
 hasProcessingProvider=no
-# Uncomment the following line and add your changelog:
-# changelog=
 tags=python, filter, vector, postgis, performance
+
+changelog=
+    Version 1.2:
+    - Keep existing filter on layers that are added pre-filtered
+    - Don't crash in exclusion dialog if raster layers exist
+    - Ensure valid geometries when using multiple input geometries
+    - Fix retrieval of file path and layer name for processing results
+    Version 1.1:
+    - First public release
 
 homepage=https://github.com/WhereGroup/spatial_filter
 category=Plugins
