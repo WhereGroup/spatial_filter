@@ -19,6 +19,20 @@ Die Installation ist direkt aus dem QGIS-Plugin-Repository möglich. Alternativ 
 
 Erstellen Sie einen Filter, indem Sie eine Ebenenausdehnung verwenden, Objekte einer Ebene auswählen oder ein Rechteck bzw. eine Freihandgeometrie zeichnen. Er wird sofort zum Filtern aller PostGIS-, GeoPackage- und Spatialite-Vektorlayer verwendet. Die Filter werden mit dem Projekt gespeichert und können zusätzlich mit einem Namen in den QGIS-Einstellungen abgelegt werden. Es ist möglich, das räumliche Prädikat von "schneidet" auf "enthält" oder "schneidet nicht" zu ändern. Außerdem können einzelne Layern von der Filterung ausgeschlossen werden. Die Filtergeometrie kann mit einem anpassbaren Stil auf der Karte dargestellt werden.
 
+#### Die Werkzeugleiste
+![toolbar_annotated](https://user-images.githubusercontent.com/7661092/207847402-edb72458-570a-4b5a-96d5-8569bd7fdc71.png)
+1. Aktuellen Filter entfernen
+1. Name des aktuellen Filters
+1. Filtergeometrie ein-/ausblenden
+1. Auf Filter zoomen
+1. Darstellung der Filtergeometrie anpassen
+1. Filter erstellen: Rechteckiger Filter
+1. Filter erstellen: Filter aus gewählten Features
+1. Filter erstellen: Filter-Polygon in der Karte zeichnen
+1. Räumlichen Operator auswählen
+1. Ausnahmen festlegen
+1. Filter verwalten
+
 ### Lizenz
 
 General Public License v2
@@ -45,6 +59,20 @@ You can install the plugin directly from the plugin repository. Otherwise, downl
 ### Usage
 
 Create a filter with the plugin by using a layer extent, selecting features on a layer, or drawing a rectangle or a rubber band polygon. It will be used immediately to filter all PostGIS, GeoPackage and Spatialite vector layers accordingly. The filters are stored with the project and can be saved to the QGIS settings with a name. The spatial predicate can be changed from "intersects" to "contains" or "disjoint". In addition, specific PostGIS, GeoPackage and Spatialite layers can be excluded from the filtering. The filter geometry can also be shown on canvas with an adjustable style.
+
+#### The Toolbar
+![toolbar_annotated](https://user-images.githubusercontent.com/7661092/207847402-edb72458-570a-4b5a-96d5-8569bd7fdc71.png)
+1. Remove current filter
+1. Name of the current filter
+1. Hide filter geometry
+1. Zoom to filter
+1. Adjust style of the filter geometry
+1. Create filter: Rectangular filter
+1. Create filter: Filter from selected features
+1. Create filter: Draw a filter polygon on the canvas
+1. Change geometric predicate
+1. Exclude layers from filter
+1. Manage filters
 
 ### License
 
