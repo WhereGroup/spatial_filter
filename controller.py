@@ -7,7 +7,8 @@ from qgis.utils import iface
 
 from .maptool import PolygonTool
 from .filters import FilterDefinition, Predicate
-from .helpers import getSupportedLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException
+from .helpers import getSupportedLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException, \
+    warnAboutCurveGeoms
 from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
 
 
@@ -36,6 +37,7 @@ class FilterController(QObject):
         self.refreshFilter()
 
     def onLayersAdded(self, layers: Iterable[QgsMapLayer]):
+        warnAboutCurveGeoms(layers)
         if self.hasValidFilter():
             # Apply the filter to added layers or loaded project
             for layer in getSupportedLayers(layers):
