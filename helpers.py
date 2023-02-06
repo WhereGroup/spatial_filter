@@ -5,7 +5,8 @@ from typing import Any, List, Iterable
 
 from osgeo import ogr
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer
+from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
+    QgsWkbTypes
 from qgis.utils import iface
 
 from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
@@ -172,3 +173,12 @@ def class_for_name(module_name: str, class_name: str):
     # get the class, will raise AttributeError if class cannot be found
     c = getattr(m, class_name)
     return c
+
+
+def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
+    for layer in layers:
+        if layer.storageType().upper() in ['GPKG', 'SQLITE'] and QgsWkbTypes.isCurvedType(layer.wkbType()):
+            txt = tr('The layer "{layername}" has an unsupported geometry type: '
+                     '"Circularstring", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
+                     '"Curve" or "Surface".').format(layername=layer.name())
+            iface.messageBar().pushMessage(txt, level=Qgis.Warning)
