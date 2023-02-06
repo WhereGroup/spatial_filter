@@ -177,7 +177,7 @@ def class_for_name(module_name: str, class_name: str):
 
 def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
     for layer in layers:
-        if layer.storageType().upper() == 'GPKG' and QgsWkbTypes.isCurvedType(layer.wkbType()):
+        if layer.storageType().upper() in ['GPKG', 'SQLITE'] and QgsWkbTypes.isCurvedType(layer.wkbType()):
             txt = tr('The layer "{layername}" has an unsupported geometry type: '
                      '"Circularstring", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
                      '"Curve" or "Surface".').format(layername=layer.name())
