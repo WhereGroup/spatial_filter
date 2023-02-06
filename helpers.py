@@ -181,4 +181,4 @@ def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
             txt = tr('The layer "{layername}" has an unsupported geometry type: '
                      '"Circularstring", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
                      '"Curve" or "Surface".').format(layername=layer.name())
-            iface.messageBar().pushMessage(txt, level=Qgis.Warning, duration=5)
+            iface.messageBar().pushMessage(txt, level=Qgis.Warning)
