@@ -12,7 +12,7 @@ Contributors are welcome to extend the plugin's features further. Please fork th
 
 1. Create .qm file
 
-       lrelease i18n/spatial_filter_de.py
+       lrelease i18n/spatial_filter_de.ts
 
    or alternatively
 
