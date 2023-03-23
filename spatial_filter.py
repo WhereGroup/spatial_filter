@@ -20,7 +20,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+from qgis.PyQt.QtCore import QLocale, QSettings, QTranslator, QCoreApplication
 
 import os.path
 
@@ -33,7 +33,7 @@ class SpatialFilter:
     def __init__(self, iface):
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
-        locale = QSettings().value('locale/userLocale')[0:2]
+        locale = QSettings().value('locale/userLocale', QLocale().name())[0:2]
         locale_path = os.path.join(self.plugin_dir, 'i18n', f'spatial_filter_{locale}.qm')
 
         if os.path.exists(locale_path):
