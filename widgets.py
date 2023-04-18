@@ -415,7 +415,7 @@ class FilterToolbar(QToolBar):
         self.symbol = self.styleFilterButton.symbol().clone()
         self.saveFilterSymbol()
 
-        if self.showGeomStatus:
+        if self.showGeomStatus and self.controller.currentFilter:
             self.hideFilterGeom()
             self.showFilterGeom()
 
