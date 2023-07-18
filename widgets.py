@@ -474,5 +474,5 @@ class FilterToolbar(QToolBar):
 
     def zoomToFilter(self):
         if self.controller.hasValidFilter():
-            iface.mapCanvas().setExtent(self.controller.currentFilter.geometry.boundingBox())
+            iface.mapCanvas().zoomToFeatureExtent(self.controller.currentFilter.geometry.boundingBox())
             iface.mapCanvas().refresh()
