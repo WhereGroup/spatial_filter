@@ -9,7 +9,7 @@ from .maptool import PolygonTool
 from .filters import FilterDefinition, Predicate
 from .helpers import getSupportedLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException, \
     warnAboutCurveGeoms
-from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
+from .settings import FILTER_COMMENT_START
 
 
 class FilterController(QObject):
