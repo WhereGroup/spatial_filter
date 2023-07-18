@@ -9,7 +9,7 @@ from .maptool import PolygonTool
 from .filters import FilterDefinition, Predicate
 from .helpers import getSupportedLayers, removeFilterFromLayer, addFilterToLayer, refreshLayerTree, hasLayerException, \
     warnAboutCurveGeoms
-from .settings import FILTER_COMMENT_START
+from .settings import FILTER_COMMENT_START, LOCALIZED_PLUGIN_NAME
 
 
 class FilterController(QObject):
@@ -72,13 +72,13 @@ class FilterController(QObject):
     def setFilterFromSelection(self):
         layer = iface.activeLayer()
         if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
-            iface.messageBar().pushInfo('', self.tr('Select a polygon layer'))
+            iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, self.tr('Select a polygon layer'))
             return
         if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            iface.messageBar().pushInfo('', self.tr('Select a polygon layer'))
+            iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, self.tr('Select a polygon layer'))
             return
         if not layer.selectedFeatureCount():
-            iface.messageBar().pushInfo('', self.tr('No features selected'))
+            iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, self.tr('No features selected'))
             return
         crs = iface.activeLayer().crs()
         geom = QgsGeometry().unaryUnion([feature.geometry() for feature in layer.selectedFeatures()])
@@ -114,7 +114,7 @@ class FilterController(QObject):
     def onSketchFinished(self, geometry: QgsGeometry):
         self.stopSketchingTool()
         if not geometry.isGeosValid():
-            iface.messageBar().pushMessage(self.tr("Geometry is not valid"), level=Qgis.Warning, duration=3)
+            iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, self.tr("Geometry is not valid"))
             return
         self.initFilter()
         self.currentFilter.name = self.tr('New filter from sketch')

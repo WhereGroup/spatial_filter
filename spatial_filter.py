@@ -24,9 +24,6 @@ from qgis.PyQt.QtCore import QLocale, QSettings, QTranslator, QCoreApplication
 
 import os.path
 
-from .controller import FilterController
-from .widgets import FilterToolbar
-
 
 class SpatialFilter:
 
@@ -42,6 +39,11 @@ class SpatialFilter:
             QCoreApplication.installTranslator(self.translator)
 
     def initGui(self):
+        # we import just now because we need the QCoreApplication translator
+        # to be installed already (e.g. for the LOCALIZED_PLUGIN_NAME)
+        from .controller import FilterController
+        from .widgets import FilterToolbar
+
         self.toolbar = FilterToolbar(FilterController(), self.iface.mainWindow())
         self.iface.mainWindow().addToolBar(self.toolbar)
 

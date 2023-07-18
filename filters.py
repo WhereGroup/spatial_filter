@@ -6,7 +6,7 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayer, QgsGeometry, QgsCoordinateReferenceSystem
 from qgis.utils import iface
 
-from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP
+from .settings import FILTER_COMMENT_START, FILTER_COMMENT_STOP, LOCALIZED_PLUGIN_NAME
 from .helpers import tr, saveSettingsValue, readSettingsValue, allSettingsValues, removeSettingsValue, \
     getLayerGeomName, matchFormatString
 
@@ -140,13 +140,13 @@ def loadAllFilterDefinitions() -> List[FilterDefinition]:
 
 def saveFilterDefinition(filterDef: FilterDefinition) -> None:
     if not filterDef:
-        iface.messageBar().pushInfo("", tr("No current filter"))
+        iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, tr("No current filter"))
         return
     if not filterDef.isValid:
-        iface.messageBar().pushInfo("", tr("Current filter definition is not valid"))
+        iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, tr("Current filter definition is not valid"))
         return
     if not filterDef.name:
-        iface.messageBar().pushInfo("", tr("Please provide a name for the filter"))
+        iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, tr("Please provide a name for the filter"))
         return
     if filterDef.isSaved:
         return
