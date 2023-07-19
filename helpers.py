@@ -5,11 +5,12 @@ from typing import Any, List, Iterable
 
 from osgeo import ogr
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
+from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
     QgsWkbTypes
 from qgis.utils import iface
 
-from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, LAYER_EXCEPTION_VARIABLE
+from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, \
+    LAYER_EXCEPTION_VARIABLE, LOCALIZED_PLUGIN_NAME
 
 
 def tr(message):
@@ -181,6 +182,6 @@ def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
             continue
         if layer.storageType().upper() in ['GPKG', 'SQLITE'] and QgsWkbTypes.isCurvedType(layer.wkbType()):
             txt = tr('The layer "{layername}" has an unsupported geometry type: '
-                     '"Circularstring", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
+                     '"CircularString", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
                      '"Curve" or "Surface".').format(layername=layer.name())
-            iface.messageBar().pushMessage(txt, level=Qgis.Warning)
+            iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, txt)

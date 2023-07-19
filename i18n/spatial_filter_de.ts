@@ -4,11 +4,6 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../widgets.py" line="166"/>
-        <source>Filter Toolbar</source>
-        <translation type="obsolete">Filterwerkzeugleiste</translation>
-    </message>
-    <message>
         <location filename="../filters.py" line="146"/>
         <source>Current filter definition is not valid</source>
         <translation>Aktuelle Filterdefinition ist ungültig</translation>
@@ -39,66 +34,6 @@
         <translation>Löschen?</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="35"/>
-        <source>Set rectangular filter</source>
-        <translation type="obsolete">Rechteckigen Filter setzen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="124"/>
-        <source>Change Name</source>
-        <translation type="obsolete">Namen ändern</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="124"/>
-        <source>New Name:</source>
-        <translation type="obsolete">Neuer Name:</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="138"/>
-        <source>Chose geometric predicate</source>
-        <translation type="obsolete">Geometrisches Prädikat wählen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="177"/>
-        <source>Toggle filter on/off</source>
-        <translation type="obsolete">Filter ein/aus</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="205"/>
-        <source>Set rectangular filter geometry</source>
-        <translation type="obsolete">Rechteckige Filtergeometrie erstellen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="210"/>
-        <source>Set filter geometry from selection</source>
-        <translation type="obsolete">Filtergeometrie aus Auswahl erstellen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="218"/>
-        <source>Save current filter</source>
-        <translation type="obsolete">Filter speichern</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="223"/>
-        <source>Manage filters</source>
-        <translation type="obsolete">Filter verwalten</translation>
-    </message>
-    <message>
-        <location filename="../controller.py" line="60"/>
-        <source>No filter geometry set</source>
-        <translation type="obsolete">Keine Filtergeometrie gesetzt</translation>
-    </message>
-    <message>
-        <location filename="../controller.py" line="71"/>
-        <source>Chose a polygon-Layer</source>
-        <translation type="obsolete">Polygonlayer auswählen</translation>
-    </message>
-    <message>
-        <location filename="../controller.py" line="74"/>
-        <source>No features selected</source>
-        <translation type="obsolete">Keine Features gewählt</translation>
-    </message>
-    <message>
         <location filename="../filters.py" line="177"/>
         <source>Current settings will be lost. Apply anyway?</source>
         <translation>Aktuelle Einstellungen gehen verloren. Trotzdem anwenden?</translation>
@@ -124,37 +59,14 @@
         <translation>Unbekannter Filter</translation>
     </message>
     <message>
-        <location filename="../helpers.py" line="181"/>
-        <source>The layer &quot;{layername}&quot; has an unsupported geometry type: &quot;Circularstring&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; or &quot;Surface&quot;.</source>
-        <translation>Der Layer &quot;{layername}&quot; hat einen nicht unterstüzten Geometrietyp: &quot;Circularstring&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; oder &quot;Surface&quot;.</translation>
-    </message>
-    <message>
         <location filename="../helpers.py" line="184"/>
-        <source>A layer  contains an unsupported geometry type: &quot;Circularstring&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; oder &quot;Surface&quot;.</source>
-        <translation type="obsolete">Ein Layer hat einen unicht unterstützten Geometrietyp: &quot;Circularstring&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; oder &quot;Surface&quot;.</translation>
-    </message>
-</context>
-<context>
-    <name>Controller</name>
-    <message>
-        <location filename="../controller.py" line="62"/>
-        <source>No filter geometry set</source>
-        <translation type="obsolete">Keine Filtergeometrie gesetzt</translation>
+        <source>The layer &quot;{layername}&quot; has an unsupported geometry type: &quot;CircularString&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; or &quot;Surface&quot;.</source>
+        <translation>Der Layer &amp;quot;{layername}&amp;quot; hat einen nicht unterstützten Geometrietyp: &amp;quot;CircularString&amp;quot;, &amp;quot;CompoundCurve&amp;quot;, &amp;quot;CurvePolygon&amp;quot;, &amp;quot;MultiCurve&amp;quot;, &amp;quot;MultiSurface&amp;quot;, &amp;quot;Curve&amp;quot; oder &amp;quot;Surface&amp;quot;.</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="70"/>
-        <source>Select a polygon layer</source>
-        <translation type="obsolete">Polygonlayer auswählen</translation>
-    </message>
-    <message>
-        <location filename="../controller.py" line="73"/>
-        <source>No features selected</source>
-        <translation type="obsolete">Keine Features gewählt</translation>
-    </message>
-    <message>
-        <location filename="../controller.py" line="19"/>
-        <source>New Filter</source>
-        <translation type="obsolete">Neuer Filter</translation>
+        <location filename="../settings.py" line="7"/>
+        <source>Spatial Filter</source>
+        <translation>Räumlicher Filter</translation>
     </message>
 </context>
 <context>
@@ -172,11 +84,6 @@
 </context>
 <context>
     <name>FilterController</name>
-    <message>
-        <location filename="../controller.py" line="21"/>
-        <source>New Filter</source>
-        <translation type="obsolete">Neuer Filter</translation>
-    </message>
     <message>
         <location filename="../controller.py" line="78"/>
         <source>Select a polygon layer</source>
@@ -204,49 +111,6 @@
     </message>
 </context>
 <context>
-    <name>FilterManager</name>
-    <message>
-        <location filename="../filters.py" line="110"/>
-        <source>Current filter definition is not valid</source>
-        <translation type="obsolete">Aktuelle Filterdefinition ist ungültig</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="113"/>
-        <source>Please provide a name for the filter</source>
-        <translation type="obsolete">Bitte zuerst einen Filternamen vergeben</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="132"/>
-        <source>Overwrite settings for filter</source>
-        <translation type="obsolete">Einstellungen überschreiben für Filter</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="133"/>
-        <source>Overwrite?</source>
-        <translation type="obsolete">Überschreiben?</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="138"/>
-        <source>Delete filter</source>
-        <translation type="obsolete">Filter löschen</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="139"/>
-        <source>Delete?</source>
-        <translation type="obsolete">Löschen?</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="127"/>
-        <source>Current settings will be lost. Apply anyway?</source>
-        <translation type="obsolete">Aktuelle Einstellungen gehen verloren. Trotzdem anwenden?</translation>
-    </message>
-    <message>
-        <location filename="../filters.py" line="128"/>
-        <source>Continue?</source>
-        <translation type="obsolete">Fortfahren?</translation>
-    </message>
-</context>
-<context>
     <name>FilterToolbar</name>
     <message>
         <location filename="../widgets.py" line="323"/>
@@ -257,16 +121,6 @@
         <location filename="../widgets.py" line="328"/>
         <source>Filter from selected features</source>
         <translation>Filter aus gewählten Features</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="176"/>
-        <source>Toggle filter on/off</source>
-        <translation type="obsolete">Filter ein/aus</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="338"/>
-        <source>Save current filter</source>
-        <translation type="obsolete">Filter speichern</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="349"/>
@@ -282,16 +136,6 @@
         <location filename="../widgets.py" line="429"/>
         <source>Show filter geometry</source>
         <translation>Filtergeometrie anzeigen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="364"/>
-        <source>Activate filter</source>
-        <translation type="obsolete">Filter aktivieren</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="362"/>
-        <source>Deactivate filter</source>
-        <translation type="obsolete">Filter deaktivieren</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="397"/>
@@ -312,11 +156,6 @@
         <location filename="../widgets.py" line="333"/>
         <source>Draw a filter polygon on the canvas</source>
         <translation>Filter-Polygon in der Karte zeichnen</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="444"/>
-        <source>Geometry is not valid</source>
-        <translation type="obsolete">Geometrie ist ungültig</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="286"/>
@@ -373,11 +212,6 @@
         <translation>Aktiver Filter:</translation>
     </message>
     <message>
-        <location filename="../ui/named_filters_dialog.ui" line="36"/>
-        <source>Name...</source>
-        <translation type="obsolete">Name...</translation>
-    </message>
-    <message>
         <location filename="../ui/named_filters_dialog.ui" line="49"/>
         <source>Named Filters:</source>
         <translation>Benannte Filter:</translation>
@@ -398,27 +232,9 @@
         <translation>Schließen</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="173"/>
-        <source>Change Name</source>
-        <translation type="obsolete">Namen ändern</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="173"/>
-        <source>New Name:</source>
-        <translation type="obsolete">Neuer Name:</translation>
-    </message>
-    <message>
         <location filename="../ui/named_filters_dialog.ui" line="36"/>
         <source>Save</source>
         <translation>Speichern</translation>
-    </message>
-</context>
-<context>
-    <name>PredicateAction</name>
-    <message>
-        <location filename="../widgets.py" line="137"/>
-        <source>Geometric predicate</source>
-        <translation type="obsolete">Räumlicher Operator</translation>
     </message>
 </context>
 <context>
@@ -444,19 +260,9 @@
         <translation>BBOX</translation>
     </message>
     <message>
-        <location filename="../widgets.py" line="219"/>
-        <source>Compare features to the filters bounding box</source>
-        <translation type="obsolete">Vergleiche Features mit Bounding Box des Filters</translation>
-    </message>
-    <message>
         <location filename="../widgets.py" line="222"/>
         <source>GEOM</source>
         <translation>GEOM</translation>
-    </message>
-    <message>
-        <location filename="../widgets.py" line="226"/>
-        <source>Compare features to the exact filter geometry</source>
-        <translation type="obsolete">Vergleiche Features mit exakter Filtergeometrie</translation>
     </message>
     <message>
         <location filename="../widgets.py" line="188"/>
