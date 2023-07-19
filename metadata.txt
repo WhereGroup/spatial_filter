@@ -3,7 +3,7 @@ name=Räumlicher Filter
 qgisMinimumVersion=3.22
 description=Spatial filters for PostGIS, GeoPackage and Spatialite layers
 description[de]=Räumliche Filter für PostGIS-, GeoPackage- und Spatialite-Layer
-version=1.3.1
+version=1.4
 author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
 email=info@wheregroup.com
 
@@ -17,6 +17,10 @@ hasProcessingProvider=no
 tags=python, filter, vector, postgis, performance
 
 changelog=
+    Version 1.4:
+    - Add padding when zooming to filter geometry (thanks pathmapper!)
+    - Add plugin name to messages in message bar
+    - Fix crash when user edited style without having an active filter
     Version 1.3.1:
     - Fix raster layer exception in curved geometry check
     Version 1.3:
