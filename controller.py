@@ -29,6 +29,9 @@ class FilterController(QObject):
         # the layer filter will happen before the data is actually requested, at least for PostGIS
         QgsProject.instance().layersAdded.connect(self.onLayersAdded)
 
+        # to clear the filter when the project is cleared (e.g. a new project is loaded or created)
+        QgsProject.instance().cleared.connect(self.onProjectCleared)
+
     def disconnectSignals(self):
         QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
 
@@ -48,6 +51,13 @@ class FilterController(QObject):
                 if FILTER_COMMENT_START in layer.subsetString():
                     self.setFilterFromLayer(layer)
                     return
+
+    def onProjectCleared(self):
+        """Removes the filter if one is active.
+
+        This prevents filters from staying active when the user loads another project or creates a new one.
+        """
+        self.removeFilter()
 
     def setFilterFromLayer(self, layer):
         filterDefinition = FilterDefinition.fromFilterString(layer.subsetString())
