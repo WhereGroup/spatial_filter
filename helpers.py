@@ -180,8 +180,16 @@ def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
     for layer in layers:
         if not isLayerSupported(layer):
             continue
+        # additional exceptions due to missing support for curve geometries in ogr's spatialite-based spatial filtering
+        # https://github.com/WhereGroup/spatial_filter/issues/1
         if layer.storageType().upper() in ['GPKG', 'SQLITE'] and QgsWkbTypes.isCurvedType(layer.wkbType()):
-            txt = tr('The layer "{layername}" has an unsupported geometry type: '
-                     '"CircularString", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
-                     '"Curve" or "Surface".').format(layername=layer.name())
+            txt = tr(
+                'The {layerType} layer {layerName!r} has a geometry type ({geometryType}) that is not supported by the '
+                '{pluginName} plugin and will be ignored for filtering.'
+            ).format(
+                layerName=layer.name(),
+                layerType=layer.storageType(),
+                pluginName=LOCALIZED_PLUGIN_NAME,
+                geometryType=QgsWkbTypes.displayString(layer.wkbType()),
+            )
             iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, txt)
