@@ -68,6 +68,11 @@
         <source>The {layerType} layer {layerName!r} has a geometry type ({geometryType}) that is not supported by the {pluginName} plugin and will be ignored for filtering.</source>
         <translation>Der {layerType}-Layer {layerName!r} hat einen vom {pluginName!r}-Plugin nicht unterstützten Geometrietyp ({geometryType}) und kann daher nicht gefiltert werden.</translation>
     </message>
+    <message>
+        <location filename="../helpers.py" line="212"/>
+        <source>QGIS &amp;lt; 3.34.4 has a bug breaking the saving of filters to projects (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</source>
+        <translation>QGIS &amp;lt; 3.34.4 hat einen Bug, welcher beim Speichern von Filtern in Projekten zu Fehlern führt (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</translation>
+    </message>
 </context>
 <context>
     <name>ExtentDialog</name>

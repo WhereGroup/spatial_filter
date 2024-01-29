@@ -42,10 +42,14 @@ class SpatialFilter:
         # we import just now because we need the QCoreApplication translator
         # to be installed already (e.g. for the LOCALIZED_PLUGIN_NAME)
         from .controller import FilterController
+        from .helpers import warnAboutQgisBugProjectSaving
         from .widgets import FilterToolbar
 
         self.toolbar = FilterToolbar(FilterController(), self.iface.mainWindow())
         self.iface.mainWindow().addToolBar(self.toolbar)
+
+        warnAboutQgisBugProjectSaving()
+
 
     def unload(self):
         self.toolbar.hideFilterGeom()
