@@ -59,14 +59,19 @@
         <translation>Unbekannter Filter</translation>
     </message>
     <message>
-        <location filename="../helpers.py" line="184"/>
-        <source>The layer &quot;{layername}&quot; has an unsupported geometry type: &quot;CircularString&quot;, &quot;CompoundCurve&quot;, &quot;CurvePolygon&quot;, &quot;MultiCurve&quot;, &quot;MultiSurface&quot;, &quot;Curve&quot; or &quot;Surface&quot;.</source>
-        <translation>Der Layer &amp;quot;{layername}&amp;quot; hat einen nicht unterstützten Geometrietyp: &amp;quot;CircularString&amp;quot;, &amp;quot;CompoundCurve&amp;quot;, &amp;quot;CurvePolygon&amp;quot;, &amp;quot;MultiCurve&amp;quot;, &amp;quot;MultiSurface&amp;quot;, &amp;quot;Curve&amp;quot; oder &amp;quot;Surface&amp;quot;.</translation>
-    </message>
-    <message>
         <location filename="../settings.py" line="7"/>
         <source>Spatial Filter</source>
         <translation>Räumlicher Filter</translation>
+    </message>
+    <message>
+        <location filename="../helpers.py" line="186"/>
+        <source>The {layerType} layer {layerName!r} has a geometry type ({geometryType}) that is not supported by the {pluginName} plugin and will be ignored for filtering.</source>
+        <translation>Der {layerType}-Layer {layerName!r} hat einen vom {pluginName!r}-Plugin nicht unterstützten Geometrietyp ({geometryType}) und kann daher nicht gefiltert werden.</translation>
+    </message>
+    <message>
+        <location filename="../helpers.py" line="201"/>
+        <source>QGIS &amp;lt; 3.34.4 has a bug breaking the saving of (active) filters to projects (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</source>
+        <translation>QGIS &amp;lt; 3.34.4 hat einen Bug, welcher beim Speichern von Projekten mit aktivem Filter zu Fehlern führt (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</translation>
     </message>
 </context>
 <context>
@@ -85,27 +90,27 @@
 <context>
     <name>FilterController</name>
     <message>
-        <location filename="../controller.py" line="78"/>
+        <location filename="../controller.py" line="88"/>
         <source>Select a polygon layer</source>
         <translation>Polygonlayer auswählen</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="81"/>
+        <location filename="../controller.py" line="91"/>
         <source>No features selected</source>
         <translation>Keine Features gewählt</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="117"/>
+        <location filename="../controller.py" line="127"/>
         <source>Geometry is not valid</source>
         <translation>Geometrie ist ungültig</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="86"/>
+        <location filename="../controller.py" line="96"/>
         <source>New filter from selection</source>
         <translation>Neuer Filter aus Auswahl</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="120"/>
+        <location filename="../controller.py" line="130"/>
         <source>New filter from sketch</source>
         <translation>Neuer Filter aus Skizze</translation>
     </message>

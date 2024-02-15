@@ -5,7 +5,7 @@ from typing import Any, List, Iterable
 
 from osgeo import ogr
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
+from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
     QgsWkbTypes
 from qgis.utils import iface
 
@@ -180,8 +180,26 @@ def warnAboutCurveGeoms(layers: Iterable[QgsMapLayer]):
     for layer in layers:
         if not isLayerSupported(layer):
             continue
+        # additional exceptions due to missing support for curve geometries in ogr's spatialite-based spatial filtering
+        # https://github.com/WhereGroup/spatial_filter/issues/1
         if layer.storageType().upper() in ['GPKG', 'SQLITE'] and QgsWkbTypes.isCurvedType(layer.wkbType()):
-            txt = tr('The layer "{layername}" has an unsupported geometry type: '
-                     '"CircularString", "CompoundCurve", "CurvePolygon", "MultiCurve", "MultiSurface", '
-                     '"Curve" or "Surface".').format(layername=layer.name())
+            txt = tr(
+                'The {layerType} layer {layerName!r} has a geometry type ({geometryType}) that is not supported by the '
+                '{pluginName} plugin and will be ignored for filtering.'
+            ).format(
+                layerName=layer.name(),
+                layerType=layer.storageType(),
+                pluginName=LOCALIZED_PLUGIN_NAME,
+                geometryType=QgsWkbTypes.displayString(layer.wkbType()),
+            )
             iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, txt)
+
+
+def warnAboutQgisBugProjectSaving():
+    """Show a warning because of https://github.com/qgis/QGIS/issues/55975"""
+    if Qgis.QGIS_VERSION_INT < 33404:
+        txt = tr(
+            "QGIS &lt; 3.34.4 has a bug breaking the saving of (active) filters to projects "
+            '(<a href="https://github.com/WhereGroup/spatial_filter/issues/24">Info</a>)'
+        ).format(pluginName=LOCALIZED_PLUGIN_NAME)
+        iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, txt)
