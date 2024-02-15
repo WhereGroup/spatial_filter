@@ -199,7 +199,7 @@ def warnAboutQgisBugProjectSaving():
     """Show a warning because of https://github.com/qgis/QGIS/issues/55975"""
     if Qgis.QGIS_VERSION_INT < 33404:
         txt = tr(
-            "QGIS &lt; 3.34.4 has a bug breaking the saving of filters to projects "
+            "QGIS &lt; 3.34.4 has a bug breaking the saving of (active) filters to projects "
             '(<a href="https://github.com/WhereGroup/spatial_filter/issues/24">Info</a>)'
         ).format(pluginName=LOCALIZED_PLUGIN_NAME)
         iface.messageBar().pushWarning(LOCALIZED_PLUGIN_NAME, txt)
