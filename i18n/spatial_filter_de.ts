@@ -4,57 +4,57 @@
 <context>
     <name>@default</name>
     <message>
-        <location filename="../filters.py" line="150"/>
+        <location filename="../filters.py" line="146"/>
         <source>Current filter definition is not valid</source>
         <translation>Aktuelle Filterdefinition ist ungültig</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="153"/>
+        <location filename="../filters.py" line="149"/>
         <source>Please provide a name for the filter</source>
         <translation>Bitte zuerst einen Filternamen vergeben</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="187"/>
+        <location filename="../filters.py" line="183"/>
         <source>Overwrite settings for filter</source>
         <translation>Einstellungen überschreiben für Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="188"/>
+        <location filename="../filters.py" line="184"/>
         <source>Overwrite?</source>
         <translation>Überschreiben?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="193"/>
+        <location filename="../filters.py" line="189"/>
         <source>Delete filter</source>
         <translation>Filter löschen</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="194"/>
+        <location filename="../filters.py" line="190"/>
         <source>Delete?</source>
         <translation>Löschen?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="181"/>
+        <location filename="../filters.py" line="177"/>
         <source>Current settings will be lost. Apply anyway?</source>
         <translation>Aktuelle Einstellungen gehen verloren. Trotzdem anwenden?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="182"/>
+        <location filename="../filters.py" line="178"/>
         <source>Continue?</source>
         <translation>Fortfahren?</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="123"/>
+        <location filename="../filters.py" line="119"/>
         <source>New Filter</source>
         <translation>Neuer Filter</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="147"/>
+        <location filename="../filters.py" line="143"/>
         <source>No current filter</source>
         <translation>Kein Filter aktiv</translation>
     </message>
     <message>
-        <location filename="../filters.py" line="87"/>
+        <location filename="../filters.py" line="84"/>
         <source>Unknown filter</source>
         <translation>Unbekannter Filter</translation>
     </message>
@@ -64,14 +64,14 @@
         <translation>Räumlicher Filter</translation>
     </message>
     <message>
-        <location filename="../helpers.py" line="197"/>
+        <location filename="../helpers.py" line="186"/>
         <source>The {layerType} layer {layerName!r} has a geometry type ({geometryType}) that is not supported by the {pluginName} plugin and will be ignored for filtering.</source>
         <translation>Der {layerType}-Layer {layerName!r} hat einen vom {pluginName!r}-Plugin nicht unterstützten Geometrietyp ({geometryType}) und kann daher nicht gefiltert werden.</translation>
     </message>
     <message>
-        <location filename="../helpers.py" line="212"/>
-        <source>QGIS &amp;lt; 3.34.4 has a bug breaking the saving of filters to projects (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</source>
-        <translation>QGIS &amp;lt; 3.34.4 hat einen Bug, welcher beim Speichern von Filtern in Projekten zu Fehlern führt (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</translation>
+        <location filename="../helpers.py" line="201"/>
+        <source>QGIS &amp;lt; 3.34.4 has a bug breaking the saving of (active) filters to projects (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</source>
+        <translation>QGIS &amp;lt; 3.34.4 hat einen Bug, welcher beim Speichern von Projekten mit aktivem Filter zu Fehlern führt (&lt;a href=&quot;https://github.com/WhereGroup/spatial_filter/issues/24&quot;&gt;Info&lt;/a&gt;)</translation>
     </message>
 </context>
 <context>
@@ -90,27 +90,27 @@
 <context>
     <name>FilterController</name>
     <message>
-        <location filename="../controller.py" line="94"/>
+        <location filename="../controller.py" line="88"/>
         <source>Select a polygon layer</source>
         <translation>Polygonlayer auswählen</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="97"/>
+        <location filename="../controller.py" line="91"/>
         <source>No features selected</source>
         <translation>Keine Features gewählt</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="133"/>
+        <location filename="../controller.py" line="127"/>
         <source>Geometry is not valid</source>
         <translation>Geometrie ist ungültig</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="102"/>
+        <location filename="../controller.py" line="96"/>
         <source>New filter from selection</source>
         <translation>Neuer Filter aus Auswahl</translation>
     </message>
     <message>
-        <location filename="../controller.py" line="136"/>
+        <location filename="../controller.py" line="130"/>
         <source>New filter from sketch</source>
         <translation>Neuer Filter aus Skizze</translation>
     </message>
