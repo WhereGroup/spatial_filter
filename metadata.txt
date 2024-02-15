@@ -3,7 +3,7 @@ name=Räumlicher Filter
 qgisMinimumVersion=3.22
 description=Spatial filters for PostGIS, GeoPackage and Spatialite layers
 description[de]=Räumliche Filter für PostGIS-, GeoPackage- und Spatialite-Layer
-version=1.5
+version=1.6
 author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
 email=info@wheregroup.com
 
