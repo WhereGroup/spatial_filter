@@ -33,7 +33,10 @@ class FilterController(QObject):
         QgsProject.instance().cleared.connect(self.onProjectCleared)
 
     def disconnectSignals(self):
+        # We shouldn't have to explicitly disconnect slots that vanish with the plugin (e.g. self.foo)
+        # but it does not hurt either
         QgsProject.instance().layersAdded.disconnect(self.onLayersAdded)
+        QgsProject.instance().cleared.disconnect(self.onProjectCleared)
 
     def removeFilter(self):
         self.currentFilter = None
