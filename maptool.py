@@ -31,7 +31,7 @@ class PolygonTool(QgsMapTool):
 
         if event.button() == Qt.LeftButton:
             if not self.rubberBand:
-                self.rubberBand = QgsRubberBand(self.canvas, geometryType=QgsWkbTypes.PolygonGeometry)
+                self.rubberBand = QgsRubberBand(self.canvas, geometryType=QgsWkbTypes.GeometryType.PolygonGeometry)
                 self.rubberBand.setLineStyle(Qt.DashLine)
                 self.rubberBand.setWidth(2)
             self.rubberBand.addPoint(mapToPixel.toMapCoordinates(thisPoint))

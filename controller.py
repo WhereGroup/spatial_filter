@@ -87,7 +87,7 @@ class FilterController(QObject):
         if not layer or not layer.type() == QgsMapLayerType.VectorLayer:
             iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, self.tr('Select a polygon layer'))
             return
-        if not layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+        if not layer.geometryType() == QgsWkbTypes.GeometryType.PolygonGeometry:
             iface.messageBar().pushInfo(LOCALIZED_PLUGIN_NAME, self.tr('Select a polygon layer'))
             return
         if not layer.selectedFeatureCount():

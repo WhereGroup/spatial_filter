@@ -44,7 +44,7 @@ class LayerModel(QStandardItemModel):
 
             if isLayerSupported(layer):
                 item.setEnabled(True)
-                if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexNotPresent:
+                if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexPresence.SpatialIndexNotPresent:
                     item.setToolTip(self.tr('Layer has no spatial index'))
                     item.setIcon(QgsApplication.getThemeIcon('/mIconWarning.svg'))
             else:

@@ -176,16 +176,16 @@ def updateFilterNameFromStorage(filterDef: FilterDefinition) -> FilterDefinition
 def askApply() -> bool:
     txt = tr('Current settings will be lost. Apply anyway?')
     return QMessageBox.question(iface.mainWindow(), tr('Continue?'), txt,
-                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+                                QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes
 
 
 def askOverwrite(name: str) -> bool:
     txt = tr('Overwrite settings for filter')
     return QMessageBox.question(iface.mainWindow(), tr('Overwrite?'), f'{txt} <i>{name}</i>?',
-                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+                                QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes
 
 
 def askDelete(name: str) -> bool:
     txt = tr('Delete filter')
     return QMessageBox.question(iface.mainWindow(), tr('Delete?'), f'{txt} <i>{name}</i>?',
-                                QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes
+                                QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes

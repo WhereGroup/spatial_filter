@@ -41,7 +41,7 @@ class ExtentDialog(QDialog):
 
     def setupUi(self):
         self.resize(700, 80)
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
@@ -51,7 +51,7 @@ class ExtentDialog(QDialog):
         self.verticalLayout.addWidget(self.extentWidget)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -82,7 +82,7 @@ class LayerExceptionsDialog(QDialog):
         self.adjustSize()
 
     def setupUi(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
@@ -93,7 +93,7 @@ class LayerExceptionsDialog(QDialog):
         self.verticalLayout.addWidget(self.listView)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -287,8 +287,8 @@ class FilterToolbar(QToolBar):
         self.addAction(self.removeFilterAction)
 
         self.labelFilterName = QLabel(self)
-        self.labelFilterName.setFrameShape(QFrame.Panel)
-        self.labelFilterName.setFrameShadow(QFrame.Sunken)
+        self.labelFilterName.setFrameShape(QFrame.Shape.Panel)
+        self.labelFilterName.setFrameShadow(QFrame.Shadow.Sunken)
         self.labelFilterName.setMinimumWidth(self.FILTER_LABEL_WIDTH)
         self.addWidget(self.labelFilterName)
 
@@ -296,8 +296,8 @@ class FilterToolbar(QToolBar):
         visibilityIcon = QIcon()
         pixmapOn = QgsApplication.getThemeIcon("/mActionShowAllLayers.svg").pixmap(self.iconSize())
         pixmapOff = QgsApplication.getThemeIcon("/mActionHideAllLayers.svg").pixmap(self.iconSize())
-        visibilityIcon.addPixmap(pixmapOn, QIcon.Normal, QIcon.On)
-        visibilityIcon.addPixmap(pixmapOff, QIcon.Normal, QIcon.Off)
+        visibilityIcon.addPixmap(pixmapOn, QIcon.Mode.Normal, QIcon.State.On)
+        visibilityIcon.addPixmap(pixmapOff, QIcon.Mode.Normal, QIcon.State.Off)
         self.toggleVisibilityAction.setIcon(visibilityIcon)
         self.toggleVisibilityAction.setCheckable(True)
         self.toggleVisibilityAction.setChecked(True)
@@ -311,7 +311,7 @@ class FilterToolbar(QToolBar):
 
         self.styleFilterButton = QgsSymbolButton(self, self.tr('Filter style'))
         self.styleFilterButton.setMinimumWidth(self.BUTTON_MIN_WIDTH)
-        self.styleFilterButton.setSymbolType(QgsSymbol.Fill)
+        self.styleFilterButton.setSymbolType(QgsSymbol.SymbolType.Fill)
         self.styleFilterButton.setSymbol(self.symbol.clone())
         self.styleFilterButton.setDialogTitle(self.tr('Style filter'))
         self.addWidget(self.styleFilterButton)
@@ -432,7 +432,7 @@ class FilterToolbar(QToolBar):
 
     def showFilterGeom(self):
         """Get filterRubberBand geometry, transform it and show it on canvas"""
-        filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.PolygonGeometry)
+        filterRubberBand = QgsRubberBand(iface.mapCanvas(), QgsWkbTypes.GeometryType.PolygonGeometry)
         filterGeom = self.controller.currentFilter.geometry
         if self.controller.currentFilter.bbox:
             filterGeom = self.controller.currentFilter.boxGeometry
