@@ -50,7 +50,7 @@ class ExtentDialog(QDialog):
         self.extentWidget = QgsExtentWidget(self)
         self.verticalLayout.addWidget(self.extentWidget)
         self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
         self.buttonBox.accepted.connect(self.accept)
@@ -92,7 +92,7 @@ class LayerExceptionsDialog(QDialog):
         self.listView.header().hide()
         self.verticalLayout.addWidget(self.listView)
         self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setOrientation(Qt.Horizontal)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
         self.buttonBox.accepted.connect(self.accept)
@@ -103,7 +103,7 @@ class LayerExceptionsDialog(QDialog):
         for index in range(model.rowCount()):
             item = model.item(index)
             layer = item.data()
-            self.setExceptionForLayer(layer, bool(item.checkState() == Qt.Checked))
+            self.setExceptionForLayer(layer, bool(item.checkState() == Qt.CheckState.Checked))
         super().accept()
 
     def setExceptionForLayer(self, layer: QgsVectorLayer, exception: bool) -> None:
