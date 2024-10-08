@@ -3,7 +3,7 @@ name=Räumlicher Filter
 qgisMinimumVersion=3.22
 description=Spatial filters for PostGIS, GeoPackage and Spatialite layers
 description[de]=Räumliche Filter für PostGIS-, GeoPackage- und Spatialite-Layer
-version=1.6
+version=1.7
 author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
 email=info@wheregroup.com
 
@@ -17,6 +17,8 @@ hasProcessingProvider=no
 tags=python, filter, vector, postgis, performance
 
 changelog=
+    Version 1.7:
+    - Support for Qt 6
     Version 1.6:
     - Add warning on QGIS < 3.34.4 due to bug in project saving
     - Improved warning message on unsupported geometry types
