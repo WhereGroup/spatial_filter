@@ -7,7 +7,7 @@ from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException, isLayerSupported
 
 
-DataRole = Qt.UserRole + 1
+DataRole = Qt.ItemDataRole.UserRole + 1
 
 
 class FilterModel(QAbstractListModel):
@@ -17,8 +17,8 @@ class FilterModel(QAbstractListModel):
         self.filters = loadAllFilterDefinitions()
         self.filters.sort()
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.filters[index.row()].name
         elif role == DataRole:
             return self.filters[index.row()]
@@ -44,7 +44,7 @@ class LayerModel(QStandardItemModel):
 
             if isLayerSupported(layer):
                 item.setEnabled(True)
-                if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexNotPresent:
+                if layer.dataProvider().hasSpatialIndex() == QgsFeatureSource.SpatialIndexPresence.SpatialIndexNotPresent:
                     item.setToolTip(self.tr('Layer has no spatial index'))
                     item.setIcon(QgsApplication.getThemeIcon('/mIconWarning.svg'))
             else:
@@ -54,8 +54,8 @@ class LayerModel(QStandardItemModel):
             self.appendRow(item)
 
     def initItemCheckState(self, layer: QgsMapLayer, item: QStandardItem):
-        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
         if hasLayerException(layer):
-            item.setCheckState(Qt.Checked)
+            item.setCheckState(Qt.CheckState.Checked)
         else:
-            item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.CheckState.Unchecked)

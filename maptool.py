@@ -29,14 +29,14 @@ class PolygonTool(QgsMapTool):
 
         mapToPixel = self.canvas.getCoordinateTransform()  # QgsMapToPixel instance
 
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             if not self.rubberBand:
-                self.rubberBand = QgsRubberBand(self.canvas, geometryType=QgsWkbTypes.PolygonGeometry)
-                self.rubberBand.setLineStyle(Qt.DashLine)
+                self.rubberBand = QgsRubberBand(self.canvas, geometryType=QgsWkbTypes.GeometryType.PolygonGeometry)
+                self.rubberBand.setLineStyle(Qt.PenStyle.DashLine)
                 self.rubberBand.setWidth(2)
             self.rubberBand.addPoint(mapToPixel.toMapCoordinates(thisPoint))
 
-        elif event.button() == Qt.RightButton:
+        elif event.button() == Qt.MouseButton.RightButton:
             if self.rubberBand and self.rubberBand.numberOfVertices() > 3:
                 # Finish rubberband sketch
                 self.rubberBand.removeLastPoint()

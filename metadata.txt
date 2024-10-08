@@ -44,3 +44,4 @@ icon=icons/icon.png
 experimental=False
 deprecated=False
 server=False
+supportsQt6=True
