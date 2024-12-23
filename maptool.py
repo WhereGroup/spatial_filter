@@ -54,6 +54,10 @@ class PolygonTool(QgsMapTool):
         mapToPixel = self.canvas.getCoordinateTransform()
         self.rubberBand.movePoint(self.rubberBand.numberOfVertices() - 1, mapToPixel.toMapCoordinates(thisPoint))
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.reset()  # Reset the rubber band when pressing escape key
+
     def deactivate(self):
         self.reset()
         QgsMapTool.deactivate(self)
