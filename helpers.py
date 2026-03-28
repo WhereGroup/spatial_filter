@@ -5,13 +5,41 @@ from typing import Any, List, Iterable
 
 from osgeo import ogr
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
-    QgsWkbTypes
+from qgis.core import (
+    Qgis, 
+    QgsExpressionContextUtils, 
+    QgsSettings, 
+    QgsMapLayer, 
+    QgsMapLayerType, 
+    QgsVectorLayer,
+    QgsWkbTypes, 
+    QgsGeometry, 
+    QgsCoordinateReferenceSystem,     
+    QgsCoordinateTransform, 
+    QgsProject
+)
+
+if Qgis.QGIS_VERSION_INT > 33600:
+    from qgis.core import QgsSensorThingsUtils
+
 from qgis.utils import iface
 
-from .settings import SUPPORTED_STORAGE_TYPES, GROUP, FILTER_COMMENT_START, FILTER_COMMENT_STOP, \
-    LAYER_EXCEPTION_VARIABLE, LOCALIZED_PLUGIN_NAME
+from .settings import (
+    SUPPORTED_STORAGE_TYPES, 
+    GROUP, 
+    FILTER_COMMENT_START, 
+    FILTER_COMMENT_STOP,
+    FILTER_COMMENT_START_SENSORTHINGS, 
+    FILTER_COMMENT_STOP_SENSORTHINGS,
+    LAYER_EXCEPTION_VARIABLE, 
+    LOCALIZED_PLUGIN_NAME, 
+    SENSORTHINGS_STORAGE_TYPE
+)
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .filters import FilterDefinition
 
 def tr(message):
     return QCoreApplication.translate('@default', message)
@@ -72,27 +100,73 @@ def isLayerSupported(layer: QgsMapLayer):
     return True
 
 
+def getFilterStartStopString(layer: QgsVectorLayer) -> tuple[str, str]:
+    if layer.storageType() == SENSORTHINGS_STORAGE_TYPE:
+        return FILTER_COMMENT_START_SENSORTHINGS, FILTER_COMMENT_STOP_SENSORTHINGS
+    else:
+        return FILTER_COMMENT_START, FILTER_COMMENT_STOP
+
 def removeFilterFromLayer(layer: QgsVectorLayer):
+    # sensorthings filter does not support inline comments (FILTER_COMMENT_START)
+    # The workaround for this is a string that always evals to true and is only used with this plugin
+    FILTER_START_STRING, FILTER_STOP_STRING = getFilterStartStopString(layer)
     currentFilter = layer.subsetString()
-    if FILTER_COMMENT_START not in currentFilter:
+    if FILTER_START_STRING not in currentFilter:
         return
-    start_index = currentFilter.find(FILTER_COMMENT_START)
-    stop_index = currentFilter.find(FILTER_COMMENT_STOP) + len(FILTER_COMMENT_STOP)
+    start_index = currentFilter.find(FILTER_START_STRING)
+    stop_index = currentFilter.find(FILTER_STOP_STRING) + len(FILTER_STOP_STRING)
     newFilter = currentFilter[:start_index] + currentFilter[stop_index:]
+    newFilter = newFilter.rstrip(' and ')
     layer.setSubsetString(newFilter)
 
 
 def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
     currentFilter = layer.subsetString()
-    if FILTER_COMMENT_START in currentFilter:
+    FILTER_START_STRING, FILTER_STOP_STRING = getFilterStartStopString(layer)
+    if FILTER_START_STRING in currentFilter:
         removeFilterFromLayer(layer)
+    
     currentFilter = layer.subsetString()
+
     connect = " AND " if currentFilter else ""
-    newFilter = f'{currentFilter}{FILTER_COMMENT_START}{connect}{filterDef.filterString(layer)}{FILTER_COMMENT_STOP}'
+    if layer.storageType() == SENSORTHINGS_STORAGE_TYPE:
+        connect = connect.lower() # SensorThings only supports lowercase 'and'
+        newFilter = f'{currentFilter}{connect}{FILTER_START_STRING}{filterDef.filterString(layer)}{FILTER_STOP_STRING}'
+    else:
+        newFilter = f'{currentFilter}{FILTER_START_STRING}{connect}{filterDef.filterString(layer)}{FILTER_STOP_STRING}'
     layer.setSubsetString(newFilter)
 
 
+
+
+def reproject_geometry(geometry: QgsGeometry, source_crs_epsg: int, target_crs_epsg: int) -> QgsGeometry:
+    """
+    Reproject a QgsGeometry from a source CRS to a target CRS.
+
+    Args:
+        geometry (QgsGeometry): The QgsGeometry to reproject.
+        source_crs_epsg (int): The EPSG code of the source CRS.
+        target_crs_epsg (int): The EPSG code of the target CRS.
+
+    Returns:
+        str: The reprojected geometry.
+    """
+    source_crs = QgsCoordinateReferenceSystem(source_crs_epsg)
+    target_crs = QgsCoordinateReferenceSystem(target_crs_epsg)
+    if source_crs == target_crs: 
+        return geometry
+    transform = QgsCoordinateTransform(source_crs, target_crs, QgsProject.instance())
+    geometry.transform(transform)
+    return geometry
+
+
+
 def getLayerGeomName(layer: QgsVectorLayer):
+    if layer.storageType() == SENSORTHINGS_STORAGE_TYPE:
+        entity_str = layer.dataProvider().uri().param('entity')
+        entity_type = QgsSensorThingsUtils.stringToEntity(entity_str)
+        geom_field = QgsSensorThingsUtils.geometryFieldForEntityType(entity_type)
+        return geom_field
     return layer.dataProvider().uri().geometryColumn() or getLayerGeomNameOgr(layer)
 
 
