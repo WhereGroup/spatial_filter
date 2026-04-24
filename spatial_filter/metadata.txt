@@ -4,7 +4,7 @@ qgisMinimumVersion=3.22
 qgisMaximumVersion=4.99
 description=Spatial filters for PostGIS, GeoPackage and Spatialite layers
 description[de]=Räumliche Filter für PostGIS-, GeoPackage- und Spatialite-Layer
-version=1.8
+version=1.9.0
 author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger)
 email=info@wheregroup.com
 
@@ -18,6 +18,10 @@ hasProcessingProvider=no
 tags=python, filter, vector, postgis, performance
 
 changelog=
+    Version 1.9.0:
+    - Fix: Restore layer filter exceptions when loading project
+    - Drop deprecated supportsQt6 flag & some cosmetic cleanups
+    - Switch to semantic versioning
     Version 1.8:
     - Fix metadata for QGIS 4
     Version 1.7:
