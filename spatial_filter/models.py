@@ -1,7 +1,7 @@
 from qgis.PyQt.QtCore import QAbstractListModel, Qt, QModelIndex
 from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem
 
-from qgis.core import QgsProject,  QgsFeatureSource, QgsApplication, QgsMapLayer
+from qgis.core import QgsProject, QgsFeatureSource, QgsApplication, QgsMapLayer
 
 from .filters import loadAllFilterDefinitions
 from .helpers import hasLayerException, isLayerSupported

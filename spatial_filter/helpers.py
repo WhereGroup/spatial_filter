@@ -5,7 +5,7 @@ from typing import Any, List, Iterable
 
 from osgeo import ogr
 from qgis.PyQt.QtCore import QCoreApplication
-from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer,\
+from qgis.core import Qgis, QgsExpressionContextUtils, QgsSettings, QgsMapLayer, QgsMapLayerType, QgsVectorLayer, \
     QgsWkbTypes
 from qgis.utils import iface
 
@@ -82,7 +82,7 @@ def removeFilterFromLayer(layer: QgsVectorLayer):
     layer.setSubsetString(newFilter)
 
 
-def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):
+def addFilterToLayer(layer: QgsVectorLayer, filterDef: 'FilterDefinition'):  # noqa: F821
     currentFilter = layer.subsetString()
     if FILTER_COMMENT_START in currentFilter:
         removeFilterFromLayer(layer)
