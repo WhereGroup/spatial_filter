@@ -50,7 +50,6 @@ class SpatialFilter:
 
         warnAboutQgisBugProjectSaving()
 
-
     def unload(self):
         self.toolbar.hideFilterGeom()
         self.toolbar.controller.removeFilter()
