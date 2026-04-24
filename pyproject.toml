@@ -1,0 +1,86 @@
+[tool.qgis-plugin-ci]
+plugin_path = "spatial_filter"
+github_organization_slug = "WhereGroup"
+project_slug = "spatial_filter"
+changelog_include = false
+
+[tool.pylint.master]
+ignore = "CVS"
+persistent = true
+load-plugins = []
+
+[tool.pylint."messages control"]
+disable = ["locally-disabled", "C0103"]
+
+[tool.pylint.reports]
+output-format = "text"
+reports = true
+evaluation = "10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)"
+
+[tool.pylint.basic]
+bad-functions = ["map", "filter", "apply", "input"]
+module-rgx = "(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$"
+const-rgx = "(([A-Z_][A-Z0-9_]*)|(__.*__))$"
+class-rgx = "[A-Z_][a-zA-Z0-9]+$"
+function-rgx = "[a-z_][a-z0-9_]{2,30}$"
+method-rgx = "[a-z_][a-z0-9_]{2,30}$"
+attr-rgx = "[a-z_][a-z0-9_]{2,30}$"
+argument-rgx = "[a-z_][a-z0-9_]{2,30}$"
+variable-rgx = "[a-z_][a-z0-9_]{2,30}$"
+class-attribute-rgx = "([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$"
+inlinevar-rgx = "[A-Za-z_][A-Za-z0-9_]*$"
+good-names = ["i", "j", "k", "ex", "Run", "_"]
+bad-names = ["foo", "bar", "baz", "toto", "tutu", "tata"]
+no-docstring-rgx = "__.*__"
+docstring-min-length = -1
+
+[tool.pylint.miscellaneous]
+notes = ["FIXME", "XXX", "TODO"]
+
+[tool.pylint.typecheck]
+ignore-mixin-members = true
+ignored-classes = ["SQLObject"]
+generated-members = ["REQUEST", "acl_users", "aq_parent"]
+
+[tool.pylint.variables]
+init-import = false
+dummy-variables-rgx = "_$|dummy"
+additional-builtins = []
+
+[tool.pylint.format]
+max-line-length = 80
+ignore-long-lines = '^\s*(# )?<?https?://\S+>?$'
+single-line-if-stmt = false
+no-space-check = ["trailing-comma", "dict-separator"]
+max-module-lines = 1000
+indent-string = "    "
+
+[tool.pylint.similarities]
+min-similarity-lines = 4
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = false
+
+[tool.pylint.imports]
+deprecated-modules = ["regsub", "TERMIOS", "Bastion", "rexec"]
+
+[tool.pylint.design]
+max-args = 5
+ignored-argument-names = "_.*"
+max-locals = 15
+max-returns = 6
+max-branches = 12
+max-statements = 50
+max-parents = 7
+max-attributes = 7
+min-public-methods = 2
+max-public-methods = 20
+
+[tool.pylint.classes]
+ignore-iface-methods = ["isImplementedBy", "deferred", "extends", "names", "namesAndDescriptions", "queryDescriptionFor", "getBases", "getDescriptionFor", "getDoc", "getName", "getTaggedValue", "getTaggedValueTags", "isEqualOrExtendedBy", "setTaggedValue", "isImplementedByInstancesOf", "adaptWith", "is_implemented_by"]
+defining-attr-methods = ["__init__", "__new__", "setUp"]
+valid-classmethod-first-arg = "cls"
+valid-metaclass-classmethod-first-arg = "mcs"
+
+[tool.pylint.exceptions]
+overgeneral-exceptions = ["Exception"]
