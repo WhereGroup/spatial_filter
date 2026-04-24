@@ -22,8 +22,12 @@ Contributors are welcome to extend the plugin's features further. Please fork th
 
 ## Release
 
+1. Optional: Update Translations
+
 1. Update the version and changelog in metadata.txt
 
 1. commit
 
-1. tag with a version number like "v1.1"
+1. tag with a version number `git tag 1.2.3`
+
+The workflow uses [qgis-plugins-ci](https://github.com/opengisch/qgis-plugin-ci/tree/master)
