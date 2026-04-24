@@ -19,3 +19,11 @@ Contributors are welcome to extend the plugin's features further. Please fork th
        pbt translate
 
 [Translation docs](https://docs.qgis.org/testing/en/docs/pyqgis_developer_cookbook/plugins/plugins.html#translation)
+
+## Release
+
+1. Update the version and changelog in metadata.txt
+
+1. commit
+
+1. tag with a version number like "v1.1"

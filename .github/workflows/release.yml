@@ -1,0 +1,39 @@
+name: "📦 Package & 🚀 Release"
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: "Release on tag"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install qgis-plugin-ci
+        run: pip install qgis-plugin-ci
+
+      - name: Deploy plugin
+        run: >-
+          qgis-plugin-ci
+          release ${GITHUB_REF/refs\/tags\//}
+          --github-token ${{ secrets.GITHUB_TOKEN }}
+          --osgeo-username ${{ secrets.OSGEO_USER }}
+          --osgeo-password ${{ secrets.OSGEO_PASSWORD }}
