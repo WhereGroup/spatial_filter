@@ -2,7 +2,7 @@
 plugin_path = "spatial_filter"
 github_organization_slug = "WhereGroup"
 project_slug = "spatial_filter"
-changelog_include = false
+changelog_include = true
 
 [tool.pylint.master]
 ignore = "CVS"
@@ -84,3 +84,8 @@ valid-metaclass-classmethod-first-arg = "mcs"
 
 [tool.pylint.exceptions]
 overgeneral-exceptions = ["Exception"]
+
+[dependency-groups]
+dev = [
+    "pb-tool",
+]
