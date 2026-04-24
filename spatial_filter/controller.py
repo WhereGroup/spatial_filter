@@ -43,14 +43,21 @@ class FilterController(QObject):
         self.refreshFilter()
 
     def onLayersAdded(self, layers: Iterable[QgsMapLayer]):
+        """Runs when new layers are added, e.g. if a project is loaded."""
         warnAboutCurveGeoms(layers)
-        if self.hasValidFilter():
-            # Apply the filter to added layers or loaded project
-            for layer in getSupportedLayers(layers):
+        for layer in getSupportedLayers(layers):
+            if hasLayerException(layer):
+                # We use this opportunity for a cleanup feature:
+                # The layer is meant to be not filtered but might have a filter set (for any reason), let's remove that!
+                removeFilterFromLayer(layer)
+                continue
+
+            if self.hasValidFilter():
+                # Apply the filter to added layers or loaded project
                 addFilterToLayer(layer, self.currentFilter)
-        else:
-            # Look for saved filters to use with the plugin (possible when project was loaded)
-            for layer in getSupportedLayers(layers):
+            else:
+                # If we don't have a filter set in the plugin, we try to find one in this new layer (eg on project load)
+                # Note: We take the *first* spatial filter we find and apply it
                 if FILTER_COMMENT_START in layer.subsetString():
                     self.setFilterFromLayer(layer)
                     return
