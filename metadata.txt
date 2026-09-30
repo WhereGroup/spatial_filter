@@ -1,0 +1,71 @@
+[general]
+name=Erweiterter Räumlicher Filter
+qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+description=Spatial filters for PostGIS, GeoPackage, Spatialite, WFS and OGC API Features layers
+description[de]=Räumliche Filter für PostGIS-, GeoPackage-, Spatialite-, WFS- und OGC-API-Features-Layer
+version=2.1.7
+author=WhereGroup GmbH (Peter Gipper, Mathias Gröbe, Johannes Kröger), KRZN (WFS/OGC API Features)
+email=info@wheregroup.com
+
+about[en]=Create and manage spatial filters that are applied to PostGIS, GeoPackage, Spatialite, WFS and OGC API Features vector layers in the current QGIS project. The plugin allows for filtered viewing and editing of the layer, with the filter being defined by a polygon geometry or a bounding box. It is possible to define exceptions for layers and display the filter geometry on the map canvas.
+
+about=Erstellt und verwaltet räumliche Filter für vektorbasierte PostGIS-, GeoPackage-, Spatialite-, WFS- und OGC-API-Features-Layer im aktuellen QGIS-Projekt. Damit lässt sich die Anzeige und Bearbeitung der Layer auf eine bestimmte Polygongeometrie oder deren minimal umfassendes Rechteck begrenzen. Es ist möglich Ausnahmen für einzelne Layer zu definieren und die Filtergeometrie anzuzeigen.
+
+tracker=https://github.com/WhereGroup/spatial_filter/issues
+repository=https://github.com/WhereGroup/spatial_filter
+
+hasProcessingProvider=no
+tags=python, filter, vector, postgis, performance
+
+changelog=
+    Version 2.1.7: GeoPackage/SQLite-Intersects für komplexe MultiSurface/MultiCurve-Geometrien auf NOT ST_Disjoint umgestellt, um bbox-artige False-Positives außerhalb der Filtergeometrie zu vermeiden.
+    Version 2.1.5: CRS-Rekonstruktion aus gespeicherten SQL-Filtern korrigiert; verhindert falsche Reprojektion und leere Ergebnisse bei MultiPolygon/MultiSurface-Filtern.
+    Version 2.1.4: MultiSurfaceZ/MultiCurveZ-Unterstützung verbessert und Parser für verschachtelte SQL-Geometrieausdrücke stabilisiert.
+    Version 2.1.3:
+    - Force provider-side SQL filters to compare 2D geometries for PostGIS, GeoPackage and SQLite/SpatiaLite layers
+    - Fix filtering of PolygonZ/MultiPolygonZ layers and layers with 3D view styling where the provider otherwise evaluated spatial predicates incorrectly
+    Version 2.1.2:
+    - Normalize filter geometries to 2D before creating SQL/provider expressions
+    Version 2.1.1:
+    - Translate WFS/OAPIF strategy menu entries to German
+    Version 2.1.0:
+    - Add intelligent WFS/OAPIF filter strategy: exact geometry, simplify, BBOX fallback
+    - Add WFS/OAPIF strategy selector to the predicate menu
+    - Prevent overlong remote filter expressions from creating Request-URI-too-long errors
+    Version 2.0.0:
+    - Add spatial filter support for WFS and OGC API Features layers
+    - Use provider-specific filter expressions for web feature services
+    Version 1.8.1:
+    - Fix linting issues, drop deprecated Qt6 flag
+    Version 1.8:
+    - Fix metadata for QGIS 4
+    Version 1.7:
+    - Support for Qt 6
+    Version 1.6:
+    - Add warning on QGIS < 3.34.4 due to bug in project saving
+    - Improved warning message on unsupported geometry types
+    Version 1.5:
+    - Clear filter when a new project is loaded or created
+    Version 1.4:
+    - Add padding when zooming to filter geometry (thanks pathmapper!)
+    - Add plugin name to messages in message bar
+    - Fix crash when user edited style without having an active filter
+    Version 1.3.1:
+    - Fix raster layer exception in curved geometry check
+    Version 1.3:
+    - Add warning message for layers with unsupported geometry type
+    Version 1.2:
+    - Keep existing filter on layers that are added pre-filtered
+    - Don't crash in exclusion dialog if raster layers exist
+    - Ensure valid geometries when using multiple input geometries
+    - Fix retrieval of file path and layer name for processing results
+    Version 1.1:
+    - First public release
+
+homepage=https://github.com/WhereGroup/spatial_filter
+category=Plugins
+icon=icons/icon.png
+experimental=False
+deprecated=False
+server=False
